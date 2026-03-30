@@ -12,7 +12,7 @@ Initializes and configures the PocketBase `*pocketbase.PocketBase` app instance.
 |-----------|---------|
 | `schema/` | Go files that define and register PocketBase collections |
 | `hooks/` | Event hooks on PocketBase collections and records |
-| `routes/` | Custom API routes registered on PocketBase's Echo router |
+| `routes/` | Custom API routes registered on PocketBase's ServeMux router |
 
 ## Expected Files
 
