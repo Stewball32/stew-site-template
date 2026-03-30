@@ -1,40 +1,27 @@
-# sveltekit/
+# SvelteKit Frontend
 
-SvelteKit frontend source. Uses `@sveltejs/adapter-static` to produce a fully static build served by PocketBase.
+This directory will contain the SvelteKit project. Scaffold it with:
 
-## Build Output
-
-`adapter-static` is configured to output to `../pb_public/` (one level up from this directory). PocketBase automatically serves anything in `pb_public/` over HTTP.
-
-In `svelte.config.js`:
-
-```js
-import adapter from '@sveltejs/adapter-static';
-
-export default {
-  kit: {
-    adapter: adapter({
-      pages: '../pb_public',
-      assets: '../pb_public',
-      fallback: 'index.html',  // enables SPA-style client-side routing
-    }),
-  },
-};
+```bash
+cd sveltekit
+pnpm create svelte@latest . --template skeleton --types ts
+pnpm install
+pnpm add -D @skeletonlabs/skeleton @skeletonlabs/skeleton-svelte
+pnpm add pocketbase
 ```
 
-## UI Framework
+## Post-scaffold setup
 
-[Skeleton UI v4](https://www.skeleton.dev/) is used for components and theming on top of Tailwind CSS.
-
-## API Communication
-
-- **PocketBase** — via the [PocketBase JS SDK](https://github.com/pocketbase/js-sdk) (`pocketbase` npm package)
-- **WebSocket** — via the browser's native `WebSocket` API or a thin wrapper in `src/lib/api/`
-
-## Development
-
-```sh
-npm install
-npm run dev      # dev server (proxies API to running Go backend)
-npm run build    # outputs static files to ../pb_public/
-```
+- **svelte.config.js**: Switch to `@sveltejs/adapter-static` with `fallback: 'index.html'`
+- **vite.config.ts**: Add proxy for `/api` and `/_` to `http://localhost:8090`
+- **src/app.css**: Import Tailwind, Skeleton, and a theme:
+  ```css
+  @import 'tailwindcss';
+  @import '@skeletonlabs/skeleton';
+  @import '@skeletonlabs/skeleton-svelte';
+  @import '@skeletonlabs/skeleton/themes/cerberus';
+  ```
+- **src/app.html**: Add `data-theme="cerberus"` to the `<html>` tag
+- **src/routes/+layout.ts**: Set `ssr = false`, `prerender = true`, `trailingSlash = 'always'`
+- **src/lib/pocketbase.ts**: Create PB client singleton using `PUBLIC_POCKETBASE_URL`
+- **sveltekit/.env**: Set `PUBLIC_POCKETBASE_URL=http://localhost:8090`
