@@ -1,0 +1,56 @@
+version: "3"
+dotenv: [".env"]
+
+tasks:
+  dev:
+    desc: Run Go backend (Air) and SvelteKit dev server in parallel
+    deps: [dev:backend, dev:frontend]
+
+  dev:backend:
+    desc: Run Go backend with hot reload
+    cmds: ["air -c .air.toml"]
+
+  dev:frontend:
+    desc: Run SvelteKit dev server
+    dir: sveltekit
+    cmds: ["pnpm dev"]
+
+  build:
+    desc: Build production binary with static frontend
+    cmds:
+      - task: build:frontend
+      - task: build:backend
+
+  build:frontend:
+    desc: Build SvelteKit static output
+    dir: sveltekit
+    cmds:
+      - pnpm install --frozen-lockfile
+      - pnpm build
+    sources: ["src/**/*", "package.json", "svelte.config.js", "vite.config.ts"]
+    generates: ["build/**/*"]
+
+  build:backend:
+    desc: Build Go binary and copy frontend to pb_public
+    cmds:
+      - mkdir -p pb_public
+      - cp -r sveltekit/build/* pb_public/
+      - CGO_ENABLED=0 go build -o ./bin/server ./cmd/server
+    sources: ["cmd/**/*.go", "internal/**/*.go", "go.mod", "go.sum"]
+    generates: ["bin/server"]
+
+  clean:
+    desc: Remove build artifacts
+    cmds:
+      - rm -rf bin/ tmp/ pb_public/
+
+  container:build:
+    desc: Build container image with Podman
+    cmds: ["podman build -t yourproject -f Containerfile ."]
+
+  container:run:
+    desc: Run container with Podman
+    cmds:
+      [
+        "podman run -p ${PB_PORT:-8090}:8090 -v pb_data:/app/pb_data:z yourproject",
+      ]
