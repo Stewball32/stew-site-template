@@ -56,14 +56,15 @@ Protected pages can be served through custom PocketBase routes that validate JWT
 ### Startup sequence (`cmd/server/main.go`)
 
 1. Create PocketBase app instance
-2. In OnServe hook:
-   - Register collection schemas (`internal/pocketbase/schema`)
-   - Register record lifecycle hooks (`internal/pocketbase/hooks`)
-   - Register custom API routes + protected page routes (`internal/pocketbase/routes`)
+2. Register record lifecycle hooks — `hooks.RegisterAll(app)` (callback registration, fires later)
+3. In OnServe hook:
+   - Register collection schemas (`schema.RegisterAll(app)`)
+   - Register OAuth2 providers (`oauth.RegisterAll(app)`) — must run after schema
+   - Register custom API routes (`routes.RegisterAll(se)`)
    - Initialize WebSocket Hub, start its Run() goroutine, mount `/api/ws` endpoint
    - Start Disgo bot gateway connection (non-blocking)
-3. Register OnTerminate hook to shut down Disgo bot cleanly
-4. Call `app.Start()` (blocking)
+4. Register OnTerminate hook to shut down Disgo bot cleanly
+5. Call `app.Start()` (blocking)
 
 ### Key packages
 
@@ -71,8 +72,10 @@ Protected pages can be served through custom PocketBase routes that validate JWT
 | -------------------------------- | ---------------------------------------------------------------------- |
 | `internal/pocketbase/schema`     | Programmatic collection definitions — one file per domain              |
 | `internal/pocketbase/hooks`      | Record event hooks — fire Discord notifications, push to WS clients    |
+| `internal/pocketbase/oauth`      | OAuth2 provider config — env-driven, self-registering, one per file    |
 | `internal/pocketbase/routes`     | Custom endpoints + protected page serving via auth-gated routes        |
-| `internal/pocketbase/middleware` | Auth middleware, role checks for custom routes                         |
+| `internal/pocketbase/routes/middleware` | Auth middleware, role checks, global middleware registry         |
+| `internal/pocketbase/routes/admin`     | Route group for `/api/admin` — auth + admin middleware           |
 | `internal/websocket`             | WebSocket Hub, client management, message routing, JWT auth upgrade    |
 | `internal/disgo`                 | Bot client setup: NewBot(), OpenGateway(), Close()                     |
 | `internal/disgo/commands`        | Slash command definitions and handler functions                        |
@@ -89,8 +92,8 @@ Protected pages can be served through custom PocketBase routes that validate JWT
 ## Conventions
 
 - PocketBase v0.36.7 — uses `net/http.ServeMux`, NOT Echo. Hooks use `OnServe` not `OnBeforeServe`.
-- PocketBase extensions follow a registration pattern: `Register*()` functions called from OnServe
-- One `.go` file per logical domain in `schema/`, `hooks/`, and `commands/`
+- PocketBase extensions follow a registration pattern: hooks register before OnServe, schema/routes register inside OnServe via `RegisterAll()`
+- One `.go` file per logical domain in `schema/`, `hooks/`, `routes/`, and `commands/`
 - PB record hooks use `routine.FireAndForget` for async external calls (Discord API)
 - Clone record data into local variables before goroutines — event objects are not concurrent-safe
 - WebSocket auth: validate `?token=` query param, attach user if valid, allow anonymous if not
