@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 
 	"github.com/pocketbase/pocketbase"
@@ -9,10 +10,14 @@ import (
 	"github.com/youruser/yourproject/internal/pocketbase/oauth"
 	"github.com/youruser/yourproject/internal/pocketbase/routes"
 	"github.com/youruser/yourproject/internal/pocketbase/schema"
+
+	discordbot "github.com/youruser/yourproject/internal/disgo"
 )
 
 func main() {
 	app := pocketbase.New()
+
+	var bot *discordbot.Bot
 
 	// Register record lifecycle hooks (callback registration, fires later).
 	hooks.RegisterAll(app)
@@ -33,18 +38,28 @@ func main() {
 		// hub := websocket.NewHub()
 		// go hub.Run()
 
-		// TODO: Start Disgo bot (non-blocking)
-		// bot, err := disgo.NewBot()
-		// if err != nil { return err }
-		// if err := bot.OpenGateway(context.Background()); err != nil { return err }
+		// Start Disgo bot (non-blocking)
+		var err error
+		bot, err = discordbot.NewBot()
+		if err != nil {
+			log.Printf("Warning: Discord bot not started: %v", err)
+		} else {
+			if err := bot.OpenGateway(context.Background()); err != nil {
+				log.Printf("Warning: Discord gateway failed: %v", err)
+				bot = nil
+			} else {
+				discordbot.SetInstance(bot)
+			}
+		}
 
 		return se.Next()
 	})
 
 	// OnTerminate: cleanup.
 	app.OnTerminate().BindFunc(func(te *core.TerminateEvent) error {
-		// TODO: Shut down Disgo bot
-		// bot.Close(context.Background())
+		if bot != nil {
+			bot.Close(context.Background())
+		}
 
 		log.Println("Server shutting down...")
 		return te.Next()
