@@ -3,6 +3,7 @@ module github.com/youruser/yourproject
 go 1.25.0
 
 require (
+	github.com/coder/websocket v1.8.14
 	github.com/disgoorg/disgo v0.19.3
 	github.com/disgoorg/snowflake/v2 v2.0.3
 	github.com/pocketbase/dbx v1.12.0
@@ -46,6 +47,3 @@ require (
 	modernc.org/memory v1.11.0 // indirect
 	modernc.org/sqlite v1.46.2 // indirect
 )
-
-// Future dependencies (uncomment when implementing):
-//   github.com/coder/websocket v1.8.x
