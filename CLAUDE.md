@@ -76,10 +76,14 @@ Protected pages can be served through custom PocketBase routes that validate JWT
 | `internal/pocketbase/routes`     | Custom endpoints + protected page serving via auth-gated routes        |
 | `internal/pocketbase/routes/middleware` | Auth middleware, role checks, global middleware registry         |
 | `internal/pocketbase/routes/admin`     | Route group for `/api/admin` — auth + admin middleware           |
+| `internal/pocketbase/actions`    | Reusable PB data operations — one exported function per file           |
 | `internal/websocket`             | WebSocket Hub, client management, message routing, JWT auth upgrade    |
 | `internal/disgo`                 | Bot client setup: NewBot(), OpenGateway(), Close()                     |
 | `internal/disgo/commands`        | Slash command definitions and handler functions                        |
 | `internal/disgo/events`          | Discord gateway event listeners for non-interaction events             |
+| `internal/disgo/actions`         | Reusable Discord API calls — one exported function per file            |
+| `internal/disgo/components`      | UI builder factories (buttons, embeds, rows, selects, modals)          |
+| `internal/disgo/guards`          | Bot-side permission checks bridging Discord ↔ PocketBase               |
 
 ## Frontend Structure
 
@@ -99,4 +103,8 @@ Protected pages can be served through custom PocketBase routes that validate JWT
 - WebSocket auth: validate `?token=` query param, attach user if valid, allow anonymous if not
 - WebSocket Hub supports: Broadcast (all clients), SendToUser (by user ID), SendToRoom (room members)
 - Disgo uses `discord.SlashCommandCreate` for slash commands, raw event listeners for gateway events
+- Disgo actions take `*bot.Client` as first param — no dependency on package-level instance
+- PB actions take `*pocketbase.PocketBase` as first param — callable from routes, hooks, or Discord commands
+- Disgo components are pure builder functions (no registry, no init) — one file per button/embed/row
+- Disgo guards are explicit checks called at the top of command handlers, not middleware
 - Custom routes registered in OnServe take priority over pb_public/ static file serving
