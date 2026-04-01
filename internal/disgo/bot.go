@@ -99,6 +99,26 @@ func (b *Bot) syncCommands(cmds []commands.Command) error {
 	return handler.SyncCommands(b.Client, defs, guildIDs)
 }
 
+// IsMember checks if a Discord user is a member of the given guild.
+// Satisfies guards.DiscordService.
+func (b *Bot) IsMember(guildID, userID snowflake.ID) (bool, error) {
+	_, err := b.Client.Rest.GetMember(guildID, userID)
+	if err != nil {
+		return false, nil
+	}
+	return true, nil
+}
+
+// MemberRoles returns the role IDs for a user in a guild.
+// Satisfies guards.DiscordService.
+func (b *Bot) MemberRoles(guildID, userID snowflake.ID) ([]snowflake.ID, error) {
+	member, err := b.Client.Rest.GetMember(guildID, userID)
+	if err != nil {
+		return nil, err
+	}
+	return member.RoleIDs, nil
+}
+
 // OpenGateway connects to the Discord gateway. Non-blocking.
 func (b *Bot) OpenGateway(ctx context.Context) error {
 	return b.Client.OpenGateway(ctx)
