@@ -58,11 +58,16 @@ A reusable project template combining a Go backend with a SvelteKit frontend.
 │ │ ├── schema/ # Programmatic collection definitions
 │ │ ├── hooks/ # Record event hooks (PB → Discord, PB → WS)
 │ │ ├── routes/ # Custom API routes + protected page serving
-│ │ └── middleware/ # Auth middleware, role checks
+│ │ │ └── middleware/ # Auth middleware, role checks
+│ │ ├── oauth/ # OAuth2 provider configuration
+│ │ └── actions/ # Reusable PB data operations
 │ ├── disgo/
+│ │ ├── bot.go # Bot client setup and lifecycle
 │ │ ├── commands/ # Slash command definitions and handlers
 │ │ ├── events/ # Discord gateway event listeners
-│ │ └── bot.go # Bot client setup and lifecycle
+│ │ ├── actions/ # Reusable Discord API calls
+│ │ ├── components/ # UI builders (buttons, embeds, rows)
+│ │ └── guards/ # Bot-side permission checks
 │ └── websocket/
 │ ├── handler.go # WS upgrade with optional JWT auth
 │ ├── hub.go # Client registry, rooms, message routing
