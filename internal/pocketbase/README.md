@@ -2,6 +2,10 @@
 
 PocketBase application setup and customization.
 
+## Key Files
+
+- `service.go` — `Service` struct wrapping `core.App`, implements `pbiface.Service` by delegating to resolvers. Created in `main.go` via `pb.NewService(app)` and injected into the `guards.Services` struct.
+
 ## Subdirectories
 
 | Directory          | Entry point     | Purpose                                             |
@@ -13,6 +17,7 @@ PocketBase application setup and customization.
 | `routes/admin/`    | `RegisterAll()` | Route group for `/api/admin` (auth + admin middleware) |
 | `oauth/`           | `RegisterAll()` | OAuth2 provider configuration for auth collections |
 | `actions/`         | (none)          | Reusable PB data operations — one exported function per file |
+| `resolvers/`       | (none)          | PB data lookups — one exported function per file    |
 
 Each subdir has a `.go.example` file showing the pattern for adding new domains.
 
@@ -25,9 +30,19 @@ app.OnServe().BindFunc(func(se *core.ServeEvent) error {
     schema.RegisterAll(app)  // needs running DB → error
     oauth.RegisterAll(app)   // needs users collection from schema → error
     routes.RegisterAll(se)   // middleware.Init → groups → ungrouped routes
+
+    // ... WebSocket Hub + Disgo Bot setup ...
+
+    pbSvc := pb.NewService(app)
+    svc := &guards.Services{App: app, WS: hub, PB: pbSvc, Discord: bot}
+    hub.SetServices(svc)
+    hooks.SetServices(svc)   // cross-system access for hooks
+    commands.SetServices(svc) // cross-system access for Discord commands
     return se.Next()
 })
 ```
+
+Hooks can use the `svc` package-level var in `routine.FireAndForget` goroutines for cross-system calls (e.g., `svc.Discord.SendNotification()`, `svc.WS.BroadcastRaw()`).
 
 ## Route groups
 

@@ -13,14 +13,24 @@ import (
 	"github.com/disgoorg/disgo/handler"
 	"github.com/disgoorg/snowflake/v2"
 
+	"github.com/youruser/yourproject/internal/disgo/actions"
 	"github.com/youruser/yourproject/internal/disgo/commands"
 	"github.com/youruser/yourproject/internal/disgo/events"
+	"github.com/youruser/yourproject/internal/guards"
 )
 
 // Bot wraps the disgo client and exposes lifecycle methods.
 type Bot struct {
-	Client *bot.Client
+	Client   *bot.Client
+	services *guards.Services
 }
+
+// SetServices stores the cross-system Services reference.
+// Called from main.go after all systems are initialized.
+func (b *Bot) SetServices(svc *guards.Services) { b.services = svc }
+
+// Services returns the cross-system Services reference.
+func (b *Bot) Services() *guards.Services { return b.services }
 
 var instance *Bot
 
@@ -117,6 +127,18 @@ func (b *Bot) MemberRoles(guildID, userID snowflake.ID) ([]snowflake.ID, error) 
 		return nil, err
 	}
 	return member.RoleIDs, nil
+}
+
+// SendNotification sends a text message to the given channel.
+// Satisfies guards.DiscordService.
+func (b *Bot) SendNotification(channelID snowflake.ID, content string) error {
+	return actions.SendNotification(b.Client, channelID, content)
+}
+
+// CreateVoiceChannel creates a new voice channel in the given guild.
+// Satisfies guards.DiscordService.
+func (b *Bot) CreateVoiceChannel(guildID snowflake.ID, name string) (discord.GuildChannel, error) {
+	return actions.CreateVoiceChannel(b.Client, guildID, name)
 }
 
 // OpenGateway connects to the Discord gateway. Non-blocking.
