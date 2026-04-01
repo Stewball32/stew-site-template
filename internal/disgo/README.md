@@ -13,13 +13,14 @@ Creates and manages the Disgo bot client. Registers slash commands and attaches 
 | `commands/`    | Slash command definitions and interaction handlers (self-registering) |
 | `events/`      | Discord gateway event listeners (self-registering)                   |
 | `actions/`     | Reusable Discord API calls — one exported function per file          |
+| `resolvers/`   | Discord data lookups via `*guards.Services` — one function per file  |
 | `components/`  | UI builder factories (buttons, embeds, rows, selects, modals)        |
 | `guards/`      | Bot-side permission checks bridging Discord ↔ PocketBase             |
 
 ## Key Files
 
-- `bot.go` — `Bot` struct, `NewBot()`, `OpenGateway()`, `Close()`, package-level `Instance()` accessor
-- `commands/allcommands.go` — `Command` struct + registry (`register()` / `All()`)
+- `bot.go` — `Bot` struct, `NewBot()`, `OpenGateway()`, `Close()`, package-level `Instance()` accessor, action wrapper methods (`SendNotification()`, `CreateVoiceChannel()`) that satisfy `discordiface.Service`, and `SetServices()`/`Services()` for cross-system access
+- `commands/allcommands.go` — `Command` struct + registry (`register()` / `All()`), `SetServices()` for cross-system access from command handlers
 - `events/allevents.go` — event listener registry (`register()` / `RegisterAll()`)
 
 ## Bot Lifecycle
@@ -31,12 +32,35 @@ The bot is wired into PocketBase's lifecycle in `cmd/server/main.go`:
 bot, err = discordbot.NewBot()        // builds client, syncs commands
 bot.OpenGateway(context.Background()) // connects to Discord gateway (non-blocking)
 discordbot.SetInstance(bot)           // makes bot accessible via disgo.Instance()
+bot.SetServices(svc)                  // cross-system access (PB, WS, Discord)
+commands.SetServices(svc)             // makes Services available to command handlers
 
 // In OnTerminate:
 bot.Close(context.Background())
 ```
 
 Startup is non-fatal — if `DISCORD_BOT_TOKEN` is missing, the server logs a warning and continues without the bot.
+
+## Cross-System Access
+
+Command handlers access other systems via `commands.services()`:
+
+```go
+func handleLookup(data discord.SlashCommandInteractionData, e *handler.CommandEvent) error {
+    svc := services()
+
+    // Resolve from PocketBase
+    user, err := svc.PB.FindUserByDiscordID(data.User().ID.String())
+
+    // Check WebSocket state
+    if svc.WS != nil && svc.WS.IsConnected(user.Id) { ... }
+
+    // Broadcast via WebSocket
+    svc.WS.BroadcastRaw(msgBytes)
+}
+```
+
+The `Bot` struct also implements `discordiface.Service` — its action methods (`SendNotification()`, `CreateVoiceChannel()`) wrap standalone functions from `actions/`, making them callable through the `Services` interface from any system.
 
 ## Design Principles
 

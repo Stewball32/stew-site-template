@@ -60,6 +60,23 @@ func handleExample(e *Event) {
 	// Build a typed response:
 	// resp, _ := json.Marshal(map[string]string{"echo": "hello"})
 	// e.Broadcast(resp)
+
+	// Cross-system actions — call through e.Services:
+	//
+	// Discord: send a notification to a channel
+	//   if e.Services.Discord != nil {
+	//       e.Services.Discord.SendNotification(channelID, "Hello from WS!")
+	//   }
+	//
+	// PocketBase: look up a user by Discord ID
+	//   if e.Services.PB != nil {
+	//       user, err := e.Services.PB.FindUserByDiscordID("123456")
+	//   }
+	//
+	// Or use resolvers from any package:
+	//   import pbresolvers "github.com/youruser/yourproject/internal/pocketbase/resolvers"
+	//   user, err := pbresolvers.FindUserByDiscordID(e.App, discordID)
+
 	_ = json.Marshal      // silence unused import
 	_ = guards.RequireAuth // silence unused import
 }
