@@ -209,6 +209,48 @@ func (h *Hub) SendToRoom(room string, msg Message) {
 	h.incoming <- incomingMsg{msg: msg}
 }
 
+// BroadcastRaw sends pre-marshaled bytes to all connected clients.
+// Satisfies guards.WebSocketService.
+func (h *Hub) BroadcastRaw(data []byte) {
+	h.mu.RLock()
+	clients := make([]*Client, 0, len(h.clients))
+	for client := range h.clients {
+		clients = append(clients, client)
+	}
+	h.mu.RUnlock()
+	for _, client := range clients {
+		h.trySend(client, data)
+	}
+}
+
+// SendToUserRaw sends pre-marshaled bytes to all connections for a given user ID.
+// Satisfies guards.WebSocketService.
+func (h *Hub) SendToUserRaw(userID string, data []byte) {
+	h.mu.RLock()
+	clients := make([]*Client, 0, len(h.users[userID]))
+	for client := range h.users[userID] {
+		clients = append(clients, client)
+	}
+	h.mu.RUnlock()
+	for _, client := range clients {
+		h.trySend(client, data)
+	}
+}
+
+// SendToRoomRaw sends pre-marshaled bytes to all clients in the given room.
+// Satisfies guards.WebSocketService.
+func (h *Hub) SendToRoomRaw(room string, data []byte) {
+	h.mu.RLock()
+	clients := make([]*Client, 0, len(h.rooms[room]))
+	for client := range h.rooms[room] {
+		clients = append(clients, client)
+	}
+	h.mu.RUnlock()
+	for _, client := range clients {
+		h.trySend(client, data)
+	}
+}
+
 // Stop signals the Run loop to exit and close all client connections.
 func (h *Hub) Stop() {
 	h.once.Do(func() { close(h.done) })
