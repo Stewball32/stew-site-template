@@ -35,6 +35,7 @@ A reusable project template combining a Go backend with a SvelteKit frontend.
 │ │ │ - Hub / Rooms │ │
 │ │ └─────────────────────┘ │
 │ │ │
+│ guards/Services → cross-system DI │
 │ PB Hooks → Discord notifications │
 │ PB Hooks → WS Hub broadcasts │
 │ PB Routes → Auth-gated page serving │
@@ -51,30 +52,49 @@ A reusable project template combining a Go backend with a SvelteKit frontend.
 
 ```
 .
-├── cmd/server/ # Go entrypoint
-│ └── main.go
+├── cmd/server/                # Go entrypoint
+│   └── main.go
 ├── internal/
-│ ├── pocketbase/
-│ │ ├── schema/ # Programmatic collection definitions
-│ │ ├── hooks/ # Record event hooks (PB → Discord, PB → WS)
-│ │ ├── routes/ # Custom API routes + protected page serving
-│ │ └── middleware/ # Auth middleware, role checks
-│ ├── disgo/
-│ │ ├── commands/ # Slash command definitions and handlers
-│ │ ├── events/ # Discord gateway event listeners
-│ │ └── bot.go # Bot client setup and lifecycle
-│ └── websocket/
-│ ├── handler.go # WS upgrade with optional JWT auth
-│ ├── hub.go # Client registry, rooms, message routing
-│ ├── client.go # Single connection read/write pumps
-│ └── message.go # Wire format for WS messages
-├── sveltekit/ # SvelteKit frontend (scaffold separately)
-├── .env.example # Backend env template
-├── .air.toml # Go hot reload config
+│   ├── guards/                # Unified cross-system guards + Services DI
+│   │   ├── interfaces/
+│   │   │   ├── discord/       # Per-method Discord interfaces (one per file)
+│   │   │   ├── websocket/     # Per-method WS interfaces (one per file)
+│   │   │   └── pocketbase/    # Per-method PB interfaces (one per file)
+│   │   ├── services.go        # Services struct (bundles all system interfaces)
+│   │   ├── guard.go           # GuardFunc type definition
+│   │   └── require_*.go       # Guard implementations
+│   ├── pocketbase/
+│   │   ├── service.go         # PB service wrapper (implements pbiface.Service)
+│   │   ├── schema/            # Programmatic collection definitions
+│   │   ├── hooks/             # Record event hooks (PB → Discord, PB → WS)
+│   │   ├── routes/            # Custom API routes + protected page serving
+│   │   │   └── middleware/    # Auth middleware, role checks
+│   │   ├── oauth/             # OAuth2 provider configuration
+│   │   ├── actions/           # Reusable PB data operations
+│   │   └── resolvers/         # PB data lookups (one function per file)
+│   ├── disgo/
+│   │   ├── bot.go             # Bot client + interface methods + lifecycle
+│   │   ├── commands/          # Slash command definitions and handlers
+│   │   ├── events/            # Discord gateway event listeners
+│   │   ├── actions/           # Reusable Discord API calls
+│   │   ├── resolvers/         # Discord data lookups via Services
+│   │   ├── components/        # UI builders (buttons, embeds, rows)
+│   │   └── guards/            # Bot-side permission checks
+│   └── websocket/
+│       ├── hub.go             # Client registry, rooms, message routing
+│       ├── handler.go         # WS upgrade with optional JWT auth
+│       ├── client.go          # Single connection read/write pumps
+│       ├── message.go         # Wire format for WS messages
+│       ├── handlers/          # Self-registering message type handlers
+│       ├── rooms/             # Room type definitions with guard lists
+│       └── resolvers/         # WS state lookups via Services
+├── sveltekit/                 # SvelteKit frontend (scaffold separately)
+├── .env.example               # Backend env template
+├── .air.toml                  # Go hot reload config
 ├── .gitignore
-├── Taskfile.yml # Build orchestration
-├── Containerfile # Multi-stage Podman/Docker build
-├── compose.yml # Container compose config
+├── Taskfile.yml               # Build orchestration
+├── Containerfile              # Multi-stage Podman/Docker build
+├── compose.yml                # Container compose config
 ├── go.mod
 └── LICENSE
 ```
