@@ -56,27 +56,45 @@ Protected pages can be served through custom PocketBase routes that validate JWT
 ### Startup sequence (`cmd/server/main.go`)
 
 1. Create PocketBase app instance
-2. In OnServe hook:
-   - Register collection schemas (`internal/pocketbase/schema`)
-   - Register record lifecycle hooks (`internal/pocketbase/hooks`)
-   - Register custom API routes + protected page routes (`internal/pocketbase/routes`)
+2. Register record lifecycle hooks — `hooks.RegisterAll(app)` (callback registration, fires later)
+3. In OnServe hook:
+   - Register collection schemas (`schema.RegisterAll(app)`)
+   - Register OAuth2 providers (`oauth.RegisterAll(app)`) — must run after schema
+   - Register custom API routes (`routes.RegisterAll(se)`)
    - Initialize WebSocket Hub, start its Run() goroutine, mount `/api/ws` endpoint
    - Start Disgo bot gateway connection (non-blocking)
-3. Register OnTerminate hook to shut down Disgo bot cleanly
-4. Call `app.Start()` (blocking)
+   - Wire cross-system `Services` struct — connects all three systems via interfaces
+4. Register OnTerminate hook to shut down Disgo bot cleanly
+5. Call `app.Start()` (blocking)
 
 ### Key packages
 
 | Package                          | Purpose                                                                |
 | -------------------------------- | ---------------------------------------------------------------------- |
+| `internal/guards`                | Unified cross-system guards, `Services` struct, `GuardFunc` type       |
+| `internal/guards/interfaces/discord`    | Per-method Discord interfaces (Membership, Roles, Notify, Voice) |
+| `internal/guards/interfaces/websocket`  | Per-method WS interfaces (Connected, Rooms, Broadcast)           |
+| `internal/guards/interfaces/pocketbase` | Per-method PB interfaces (Users)                                 |
+| `internal/pocketbase`            | PB service wrapper — implements `pbiface.Service`                      |
 | `internal/pocketbase/schema`     | Programmatic collection definitions — one file per domain              |
 | `internal/pocketbase/hooks`      | Record event hooks — fire Discord notifications, push to WS clients    |
+| `internal/pocketbase/oauth`      | OAuth2 provider config — env-driven, self-registering, one per file    |
 | `internal/pocketbase/routes`     | Custom endpoints + protected page serving via auth-gated routes        |
-| `internal/pocketbase/middleware` | Auth middleware, role checks for custom routes                         |
+| `internal/pocketbase/routes/middleware` | Auth middleware, role checks, global middleware registry         |
+| `internal/pocketbase/routes/admin`     | Route group for `/api/admin` — auth + admin middleware           |
+| `internal/pocketbase/actions`    | Reusable PB data operations — one exported function per file           |
+| `internal/pocketbase/resolvers`  | PB data lookups — one exported function per file                       |
 | `internal/websocket`             | WebSocket Hub, client management, message routing, JWT auth upgrade    |
-| `internal/disgo`                 | Bot client setup: NewBot(), OpenGateway(), Close()                     |
+| `internal/websocket/handlers`    | Self-registering WS message handlers — one per file                    |
+| `internal/websocket/rooms`       | Room type definitions with guard lists — one per file                  |
+| `internal/websocket/resolvers`   | WS state lookups via Services — one exported function per file         |
+| `internal/disgo`                 | Bot client setup: NewBot(), OpenGateway(), Close(), action methods     |
 | `internal/disgo/commands`        | Slash command definitions and handler functions                        |
 | `internal/disgo/events`          | Discord gateway event listeners for non-interaction events             |
+| `internal/disgo/actions`         | Reusable Discord API calls — one exported function per file            |
+| `internal/disgo/resolvers`       | Discord data lookups via Services — one exported function per file     |
+| `internal/disgo/components`      | UI builder factories (buttons, embeds, rows, selects, modals)          |
+| `internal/disgo/guards`          | Bot-side permission checks bridging Discord ↔ PocketBase               |
 
 ## Frontend Structure
 
@@ -86,14 +104,35 @@ Protected pages can be served through custom PocketBase routes that validate JWT
 - **Routing:** SvelteKit file-based routing in `sveltekit/src/routes/`
 - **Package manager:** pnpm
 
+## Cross-System Architecture
+
+The three main systems (PocketBase, Disgo, WebSocket) never import each other. Cross-system communication is mediated through:
+
+1. **Interfaces** (`internal/guards/interfaces/`) — one interface per file, organized in per-system subdirectories (`discord/`, `websocket/`, `pocketbase/`). Small interfaces compose into aggregate `Service` interfaces via embedding.
+2. **Services struct** (`internal/guards/services.go`) — bundles all system references. Fields are nil if the system is not running.
+3. **Dependency injection** — `main.go` builds the `Services` struct and injects it into all three systems via `SetServices()`.
+
+Handler flow: **Trigger → Resolve → Guard → Action**
+- **Resolvers** stay in their own package (`pocketbase/resolvers/`, `disgo/resolvers/`, `websocket/resolvers/`) and only talk to their own system
+- **Guards** (`internal/guards/`) take `*Services` and check cross-system permissions
+- **Actions** are called through `Services` interfaces (e.g., `svc.Discord.SendNotification()`, `svc.WS.BroadcastRaw()`)
+
+Handlers orchestrate by calling resolvers/guards/actions from multiple systems — no resolver or guard calls sideways into another package's resolvers.
+
 ## Conventions
 
 - PocketBase v0.36.7 — uses `net/http.ServeMux`, NOT Echo. Hooks use `OnServe` not `OnBeforeServe`.
-- PocketBase extensions follow a registration pattern: `Register*()` functions called from OnServe
-- One `.go` file per logical domain in `schema/`, `hooks/`, and `commands/`
+- PocketBase extensions follow a registration pattern: hooks register before OnServe, schema/routes register inside OnServe via `RegisterAll()`
+- One `.go` file per logical domain in `schema/`, `hooks/`, `routes/`, and `commands/`
 - PB record hooks use `routine.FireAndForget` for async external calls (Discord API)
 - Clone record data into local variables before goroutines — event objects are not concurrent-safe
 - WebSocket auth: validate `?token=` query param, attach user if valid, allow anonymous if not
-- WebSocket Hub supports: Broadcast (all clients), SendToUser (by user ID), SendToRoom (room members)
+- WebSocket Hub supports: Broadcast (all clients), SendToUser (by user ID), SendToRoom (room members), plus `*Raw` variants taking `[]byte` for cross-system use via interfaces
 - Disgo uses `discord.SlashCommandCreate` for slash commands, raw event listeners for gateway events
+- Disgo actions take `*bot.Client` as first param — also exposed as methods on `Bot` for interface compliance
+- PB actions take `*pocketbase.PocketBase` as first param — callable from routes, hooks, or Discord commands
+- Disgo components are pure builder functions (no registry, no init) — one file per button/embed/row
+- Disgo guards are explicit checks called at the top of command handlers, not middleware
+- Cross-system guards in `internal/guards/` take `*Services` + `*core.Record`, usable from any system
+- Interface files use one-interface-per-file convention for merge-safe parallel development
 - Custom routes registered in OnServe take priority over pb_public/ static file serving
