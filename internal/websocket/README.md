@@ -15,15 +15,17 @@ Provides a WebSocket endpoint mounted on PocketBase's ServeMux router. Handles c
 | Directory    | Purpose                                                                |
 |--------------|------------------------------------------------------------------------|
 | `handlers/`  | Self-registering message type handlers (one per file, dispatched by Hub) |
-| `actions/`   | Reusable WS operations — one exported function per file                |
+| `rooms/`     | Room type definitions with guard lists (one per file, self-registering)  |
+| `resolvers/` | WS state lookups via `*guards.Services` — one function per file          |
+| `actions/`   | Reusable WS operations — one exported function per file                  |
 
 ## Key Files
 
-- `hub.go` — `Hub` struct, `NewHub()`, `Run()`, `Stop()`, routing, singleton (`SetInstance()`/`Instance()`)
+- `hub.go` — `Hub` struct, `NewHub()`, `Run()`, `Stop()`, routing, singleton (`SetInstance()`/`Instance()`), `SetServices()` for cross-system access, `*Raw` methods (`BroadcastRaw`, `SendToUserRaw`, `SendToRoomRaw`) that satisfy `wsiface.Service`
 - `client.go` — `Client` struct, `readPump()`, `writePump()`, `UserID()`
 - `handler.go` — `NewHandler(hub, app)` returns PocketBase-compatible route handler
 - `message.go` — `Message` struct + type constants (`TypeBroadcast`, `TypeRoom`, `TypeDirect`, `TypeJoinRoom`, `TypeLeaveRoom`, `TypeError`)
-- `handlers/allhandlers.go` — `Event` type + `HandlerFunc` + registry (`register()` / `Get()`)
+- `handlers/allhandlers.go` — `Event` type (carries `Services` for cross-system access) + `HandlerFunc` + registry (`register()` / `Get()`)
 - `handlers/guards.go` — `RequireAuth()`, `RequireRole()`, `RequireAdmin()` guard functions
 
 ## Auth Flow
@@ -49,12 +51,18 @@ Browser → readPump → Hub dispatches by message.Type
 └── No handler → default broadcast to all clients
 ```
 
-PocketBase hooks and Disgo event handlers call Hub methods directly via the singleton:
+PocketBase hooks and Disgo event handlers call Hub methods directly via the singleton or through the `Services` interface:
 
 ```go
+// Via singleton (internal use, takes Message struct):
 ws.Instance().Broadcast(ws.Message{Type: "new_post", Payload: payload})
 ws.Instance().SendToUser(userID, ws.Message{Type: "notification", Payload: payload})
 ws.Instance().SendToRoom("lobby", ws.Message{Type: "chat", Payload: payload})
+
+// Via Services interface (cross-system use, takes []byte):
+svc.WS.BroadcastRaw(jsonBytes)
+svc.WS.SendToUserRaw(userID, jsonBytes)
+svc.WS.SendToRoomRaw("lobby", jsonBytes)
 ```
 
 ## Guards
