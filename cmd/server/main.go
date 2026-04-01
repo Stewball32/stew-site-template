@@ -14,6 +14,8 @@ import (
 	ws "github.com/youruser/yourproject/internal/websocket"
 
 	discordbot "github.com/youruser/yourproject/internal/disgo"
+	"github.com/youruser/yourproject/internal/disgo/commands"
+	pb "github.com/youruser/yourproject/internal/pocketbase"
 	_ "github.com/youruser/yourproject/internal/websocket/handlers" // self-registering WS handlers
 	_ "github.com/youruser/yourproject/internal/websocket/rooms"    // self-registering WS room types
 )
@@ -58,15 +60,20 @@ func main() {
 			}
 		}
 
-		// Wire up cross-system Services for guards and resolvers.
+		// Wire up cross-system Services for guards, resolvers, and actions.
+		pbSvc := pb.NewService(app)
 		svc := &guards.Services{
 			App: app,
 			WS:  hub,
+			PB:  pbSvc,
 		}
 		if bot != nil {
 			svc.Discord = bot
+			bot.SetServices(svc)
 		}
 		hub.SetServices(svc)
+		hooks.SetServices(svc)
+		commands.SetServices(svc)
 
 		return se.Next()
 	})
