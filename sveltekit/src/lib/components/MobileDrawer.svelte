@@ -1,6 +1,9 @@
 <script lang="ts">
 	import { Navigation } from '@skeletonlabs/skeleton-svelte';
+	import { LogInIcon, LogOutIcon } from '@lucide/svelte';
 	import { navLinks } from '$lib/config/navigation';
+	import { auth } from '$lib/stores/auth.svelte';
+	import { goto } from '$app/navigation';
 
 	let { open = $bindable(false), currentPath }: { open: boolean; currentPath: string } = $props();
 
@@ -35,6 +38,26 @@
 					{/each}
 				</Navigation.Menu>
 			</Navigation.Content>
+			<Navigation.Footer>
+				{#if auth.isLoggedIn}
+					<button
+						class="btn preset-tonal w-full"
+						onclick={() => {
+							auth.logout();
+							close();
+							goto('/login/');
+						}}
+					>
+						<LogOutIcon class="size-5" />
+						<span>Logout</span>
+					</button>
+				{:else}
+					<a href="/login/" class="btn preset-tonal w-full" onclick={close}>
+						<LogInIcon class="size-5" />
+						<span>Sign In</span>
+					</a>
+				{/if}
+			</Navigation.Footer>
 		</Navigation>
 	</div>
 {/if}
