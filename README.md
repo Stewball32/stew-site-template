@@ -88,8 +88,8 @@ A reusable project template combining a Go backend with a SvelteKit frontend.
 │       ├── handlers/          # Self-registering message type handlers
 │       ├── rooms/             # Room type definitions with guard lists
 │       └── resolvers/         # WS state lookups via Services
-├── sveltekit/                 # SvelteKit frontend (scaffold separately)
-├── .env.example               # Backend env template
+├── sveltekit/                 # SvelteKit frontend (Skeleton UI v4, adapter-static → pb_public/)
+├── .env.example               # Env template (shared by backend + frontend via envDir)
 ├── .air.toml                  # Go hot reload config
 ├── .gitignore
 ├── Taskfile.yml               # Build orchestration
@@ -124,7 +124,10 @@ A reusable project template combining a Go backend with a SvelteKit frontend.
 
    ```
 
-3. **Scaffold the frontend** (see `sveltekit/README.md` for instructions)
+3. **Install frontend dependencies:**
+   ```bash
+   cd sveltekit && pnpm install && cd ..
+   ```
 
 4. **Run in development:**
    ```bash
@@ -145,12 +148,12 @@ A reusable project template combining a Go backend with a SvelteKit frontend.
 
 task container:build
 
-# Run (PB_PORT defaults to 8090, set in .env)
+# Run (PUBLIC_PB_PORT defaults to 8090, set in .env)
 
 task container:run
 ```
 
-For multiple instances on the same machine, set a unique `PB_PORT` in each project's `.env`. Route traffic with cloudflared or a reverse proxy.
+For multiple instances on the same machine, set a unique `PUBLIC_PB_PORT` in each project's `.env`. Route traffic with cloudflared or a reverse proxy.
 
 ## Notes
 
