@@ -4,7 +4,7 @@ services:
       context: .
       dockerfile: Containerfile
     ports:
-      - "${PB_PORT:-8090}:8090"
+      - "${PUBLIC_PB_PORT:-8090}:8090"
     volumes:
       - pb_data:/app/pb_data:z
     env_file:

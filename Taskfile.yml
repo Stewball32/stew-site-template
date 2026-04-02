@@ -28,13 +28,11 @@ tasks:
       - pnpm install --frozen-lockfile
       - pnpm build
     sources: ["src/**/*", "package.json", "svelte.config.js", "vite.config.ts"]
-    generates: ["build/**/*"]
+    generates: ["../pb_public/**/*"]
 
   build:backend:
-    desc: Build Go binary and copy frontend to pb_public
+    desc: Build Go binary
     cmds:
-      - mkdir -p pb_public
-      - cp -r sveltekit/build/* pb_public/
       - CGO_ENABLED=0 go build -o ./bin/server ./cmd/server
     sources: ["cmd/**/*.go", "internal/**/*.go", "go.mod", "go.sum"]
     generates: ["bin/server"]
@@ -52,5 +50,5 @@ tasks:
     desc: Run container with Podman
     cmds:
       [
-        "podman run -p ${PB_PORT:-8090}:8090 -v pb_data:/app/pb_data:z yourproject",
+        "podman run -p ${PUBLIC_PB_PORT:-8090}:8090 -v pb_data:/app/pb_data:z yourproject",
       ]

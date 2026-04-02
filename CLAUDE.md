@@ -98,10 +98,12 @@ Protected pages can be served through custom PocketBase routes that validate JWT
 
 ## Frontend Structure
 
-- **UI framework:** Skeleton UI v4 (Svelte 5 + Tailwind CSS v4)
-- **API client:** PocketBase JS SDK (`pocketbase` npm package) for REST/auth
+- **UI framework:** Skeleton UI v4 (Svelte 5 + Tailwind CSS v4), cerberus theme
+- **API client:** PocketBase JS SDK (`pocketbase` npm package) — singleton in `src/lib/pocketbase.ts`
 - **WebSocket:** Browser native `WebSocket` API connecting to `/api/ws?token=PB_JWT`
 - **Routing:** SvelteKit file-based routing in `sveltekit/src/routes/`
+- **Build:** adapter-static outputs directly to `pb_public/` with SPA fallback
+- **Env:** `vite.config.ts` uses `envDir: '..'` to read from root `.env` — no separate `sveltekit/.env`
 - **Package manager:** pnpm
 
 ## Cross-System Architecture
@@ -136,3 +138,4 @@ Handlers orchestrate by calling resolvers/guards/actions from multiple systems �
 - Cross-system guards in `internal/guards/` take `*Services` + `*core.Record`, usable from any system
 - Interface files use one-interface-per-file convention for merge-safe parallel development
 - Custom routes registered in OnServe take priority over pb_public/ static file serving
+- `PUBLIC_PB_PORT` in root `.env` — single port variable used by Taskfile, compose, Containerfile, and SvelteKit (via `$env/static/public`). The `PUBLIC_` prefix is required by SvelteKit for client-side access
