@@ -18,7 +18,8 @@ const config = {
 			pages: '../pb_public',
 			assets: '../pb_public',
 			fallback: 'index.html'
-		})
+		}),
+		env: { dir: '..' }
 	}
 };
 

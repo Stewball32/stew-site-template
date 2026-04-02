@@ -1,8 +1,15 @@
 <script lang="ts">
 	import { AppBar } from '@skeletonlabs/skeleton-svelte';
-	import { MenuIcon, CircleUserIcon } from '@lucide/svelte';
+	import { MenuIcon, LogInIcon, LogOutIcon, CircleUserIcon } from '@lucide/svelte';
+	import { auth } from '$lib/stores/auth.svelte';
+	import { goto } from '$app/navigation';
 
 	let { onToggle }: { onToggle: () => void } = $props();
+
+	function handleLogout() {
+		auth.logout();
+		goto('/login/');
+	}
 </script>
 
 <AppBar>
@@ -14,9 +21,16 @@
 			<span class="text-xl font-bold">App Template</span>
 		</AppBar.Lead>
 		<AppBar.Trail>
-			<button class="btn-icon hover:preset-tonal" aria-label="User menu">
-				<CircleUserIcon class="size-6" />
-			</button>
+			{#if auth.isLoggedIn}
+				<span class="hidden sm:inline text-sm opacity-70">{auth.user?.email}</span>
+				<button class="btn-icon hover:preset-tonal" aria-label="Logout" onclick={handleLogout}>
+					<LogOutIcon class="size-5" />
+				</button>
+			{:else}
+				<a href="/login/" class="btn-icon hover:preset-tonal" aria-label="Login">
+					<LogInIcon class="size-5" />
+				</a>
+			{/if}
 		</AppBar.Trail>
 	</AppBar.Toolbar>
 </AppBar>
