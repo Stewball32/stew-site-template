@@ -21,7 +21,7 @@ FROM alpine:latest
 RUN apk add --no-cache ca-certificates
 WORKDIR /app
 COPY --from=backend /server ./server
-COPY --from=frontend /app/build ./pb_public/
+COPY --from=frontend /pb_public ./pb_public/
 EXPOSE 8090
 VOLUME /app/pb_data
 CMD ["./server", "serve", "--http=0.0.0.0:8090"]

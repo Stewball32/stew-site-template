@@ -1,0 +1,35 @@
+<script lang="ts">
+	import { page } from '$app/state';
+	import { TriangleAlertIcon, HomeIcon, ArrowLeftIcon } from '@lucide/svelte';
+
+	const statusMessages: Record<number, string> = {
+		400: 'The request was invalid or malformed.',
+		401: 'You need to be logged in to access this page.',
+		403: "You don't have permission to access this page.",
+		404: "The page you're looking for doesn't exist or has been moved.",
+		500: 'Something went wrong on our end. Please try again later.'
+	};
+
+	let status = $derived(page.status);
+	let message = $derived(
+		page.error?.message || statusMessages[status] || 'An unexpected error occurred.'
+	);
+</script>
+
+<div class="flex items-center justify-center min-h-[70vh]">
+	<div class="text-center space-y-6 max-w-md">
+		<TriangleAlertIcon class="size-16 mx-auto text-error-500" />
+		<h1 class="h1 font-bold">{status}</h1>
+		<p class="text-lg opacity-70">{message}</p>
+		<div class="flex justify-center gap-4">
+			<button class="btn preset-tonal" onclick={() => history.back()}>
+				<ArrowLeftIcon class="size-4" />
+				<span>Go Back</span>
+			</button>
+			<a href="/" class="btn preset-filled">
+				<HomeIcon class="size-4" />
+				<span>Home</span>
+			</a>
+		</div>
+	</div>
+</div>

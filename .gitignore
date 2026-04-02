@@ -9,7 +9,6 @@ pb_public/
 
 # Node / SvelteKit
 sveltekit/node_modules/
-sveltekit/build/
 sveltekit/.svelte-kit/
 
 # Environment
