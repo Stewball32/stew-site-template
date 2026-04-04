@@ -7,7 +7,7 @@
 		$props();
 </script>
 
-<div class="hidden lg:flex h-full">
+<div class="hidden h-full lg:flex">
 	<Navigation layout={expanded ? 'sidebar' : 'rail'}>
 		<Navigation.Content>
 			<Navigation.Menu>
@@ -26,7 +26,7 @@
 			</Navigation.Menu>
 		</Navigation.Content>
 		<Navigation.Footer>
-			<button class="btn-icon hover:preset-tonal mx-auto" onclick={() => (expanded = !expanded)}>
+			<button class="mx-auto btn-icon hover:preset-tonal" onclick={() => (expanded = !expanded)}>
 				{#if expanded}
 					<PanelLeftCloseIcon class="size-5" />
 				{:else}

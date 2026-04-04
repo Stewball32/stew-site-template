@@ -22,7 +22,7 @@
 		</AppBar.Lead>
 		<AppBar.Trail>
 			{#if auth.isLoggedIn}
-				<span class="hidden sm:inline text-sm opacity-70">{auth.user?.email}</span>
+				<span class="hidden text-sm opacity-70 sm:inline">{auth.user?.email}</span>
 				<button class="btn-icon hover:preset-tonal" aria-label="Logout" onclick={handleLogout}>
 					<LogOutIcon class="size-5" />
 				</button>

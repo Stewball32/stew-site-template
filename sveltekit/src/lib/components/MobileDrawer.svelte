@@ -21,7 +21,7 @@
 	<div class="fixed inset-y-0 left-0 z-50 w-64">
 		<Navigation layout="sidebar" class="h-full">
 			<Navigation.Header>
-				<span class="text-xl font-bold p-4">App Template</span>
+				<span class="p-4 text-xl font-bold">App Template</span>
 			</Navigation.Header>
 			<Navigation.Content>
 				<Navigation.Menu>
@@ -41,7 +41,7 @@
 			<Navigation.Footer>
 				{#if auth.isLoggedIn}
 					<button
-						class="btn preset-tonal w-full"
+						class="btn w-full preset-tonal"
 						onclick={() => {
 							auth.logout();
 							close();
@@ -52,7 +52,7 @@
 						<span>Logout</span>
 					</button>
 				{:else}
-					<a href="/login/" class="btn preset-tonal w-full" onclick={close}>
+					<a href="/login/" class="btn w-full preset-tonal" onclick={close}>
 						<LogInIcon class="size-5" />
 						<span>Sign In</span>
 					</a>
