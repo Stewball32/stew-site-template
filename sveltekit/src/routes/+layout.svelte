@@ -22,11 +22,11 @@
 
 <svelte:head><link rel="icon" href={favicon} /></svelte:head>
 
-<div class="h-screen flex flex-col">
+<div class="flex h-screen flex-col">
 	<Header onToggle={handleToggle} />
 	<div class="flex flex-1 overflow-hidden">
 		<Sidebar currentPath={page.url.pathname} bind:expanded={sidebarExpanded} />
-		<main class="flex-1 overflow-y-auto p-4 lg:p-8 pb-20 lg:pb-8">
+		<main class="flex-1 overflow-y-auto p-4 pb-20 lg:p-8 lg:pb-8">
 			{@render children()}
 		</main>
 	</div>
