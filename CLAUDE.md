@@ -115,14 +115,27 @@ Protected pages can be served through custom PocketBase routes that validate JWT
 ## Frontend Structure
 
 - **UI framework:** Skeleton UI v4 (Svelte 5 + Tailwind CSS v4), cerberus theme
-- **API client:** PocketBase JS SDK (`pocketbase` npm package) — singleton in `src/lib/pocketbase.ts`
+- **API client:** PocketBase JS SDK (`pocketbase` npm package) — singleton in `src/lib/pocketbase.ts`; in dev points to `http://localhost:PORT`, in production passes `undefined` (same-origin relative)
 - **Auth store:** `src/lib/stores/auth.svelte.ts` — uses Svelte 5 runes (`$state`/`$derived`), not writable stores
-- **Navigation:** `src/lib/config/navigation.ts` — central nav link config consumed by layout components
+- **Navigation:** `src/lib/config/navigation.ts` — central nav link config consumed by all four layout nav components; edit here to add/remove nav links
+- **App name:** `src/lib/config/app.ts` — exports `APP_NAME` constant, the sole customization point for the displayed app name
 - **WebSocket:** Browser native `WebSocket` API connecting to `/api/ws?token=PB_JWT`
-- **Routing:** SvelteKit file-based routing in `sveltekit/src/routes/`
+- **Routing:** SvelteKit file-based routing in `sveltekit/src/routes/`; `+layout.ts` sets `ssr = false`, `prerender = true`, `trailingSlash = 'always'` globally
 - **Build:** adapter-static outputs directly to `pb_public/` with SPA fallback
 - **Env:** `vite.config.ts` uses `envDir: '..'` to read from root `.env` — no separate `sveltekit/.env`
 - **Package manager:** pnpm
+
+### Responsive layout
+
+The root layout (`+layout.svelte`) implements a 3-mode navigation system driven by a single `NavPanel` component:
+
+| Breakpoint | Nav mode |
+|---|---|
+| Mobile (`< sm`) | Bottom bar (`MobileNav`) + slide-in overlay drawer (`NavPanel`) |
+| Desktop (`< lg`) | Rail sidebar — icons only (`NavPanel layout="rail"`) |
+| Desktop (`≥ lg`) | Toggle between rail and full sidebar via `NavToggle` in the `Header` |
+
+`NavToggle` toggles `navOpen`, which controls both the desktop rail↔sidebar expansion and the mobile overlay open/close state. `NavPanel` derives its Skeleton `layout` prop (`"rail"` | `"sidebar"`) from `open` and `isDesktop`.
 
 ## Cross-System Architecture
 
@@ -159,3 +172,4 @@ Handlers orchestrate by calling resolvers/guards/actions from multiple systems �
 - Interface files use one-interface-per-file convention for merge-safe parallel development
 - Custom routes registered in OnServe take priority over pb_public/ static file serving
 - `PUBLIC_PB_PORT` in root `.env` — single port variable used by Taskfile, compose, Containerfile, and SvelteKit (via `$env/static/public`). The `PUBLIC_` prefix is required by SvelteKit for client-side access
+- SvelteKit `trailingSlash = 'always'` is set globally — all route hrefs must end with `/` (e.g. `/login/`, not `/login`), otherwise navigation breaks with the static adapter
