@@ -5,7 +5,7 @@
 	let { currentPath }: { currentPath: string } = $props();
 </script>
 
-<div class="fixed inset-x-0 bottom-0 z-30 flex lg:hidden">
+<div class="fixed inset-x-0 bottom-0 z-30 flex sm:hidden">
 	<Navigation layout="bar" class="w-full">
 		<Navigation.Content>
 			<Navigation.Menu>
