@@ -20,31 +20,31 @@ A reusable project template combining a Go backend with a SvelteKit frontend.
 
 ```
 ┌──────────────────────────────────────────────┐
-│ Go Binary (cmd/server) │
-│ │
-│ ┌──────────────┐ ┌─────────────────────┐ │
-│ │ PocketBase │ │ Disgo Bot │ │
-│ │ - REST API │ │ - Slash Commands │ │
-│ │ - Auth/JWT │ │ - Event Listeners │ │
-│ │ - SQLite │ └─────────────────────┘ │
-│ │ - ServeMux │ │
-│ │ Router │ ┌─────────────────────┐ │
-│ └──────┬───────┘ │ WebSocket │ │
-│ │ │ (coder/websocket) │ │
-│ │ │ - Optional JWT │ │
-│ │ │ - Hub / Rooms │ │
-│ │ └─────────────────────┘ │
-│ │ │
-│ guards/Services → cross-system DI │
-│ PB Hooks → Discord notifications │
-│ PB Hooks → WS Hub broadcasts │
-│ PB Routes → Auth-gated page serving │
-│ │
+│            Go Binary (cmd/server)            │
+│                                              │
+│  ┌──────────────┐   ┌─────────────────────┐  │
+│  │  PocketBase  │   │      Disgo Bot      │  │
+│  │  - REST API  │   │  - Slash Commands   │  │
+│  │  - Auth/JWT  │   │  - Event Listeners  │  │
+│  │  - SQLite    │   └─────────────────────┘  │
+│  │  - ServeMux  │                            │
+│  │    Router    │   ┌─────────────────────┐  │
+│  └──────┬───────┘   │      WebSocket      │  │
+│         │           │  (coder/websocket)  │  │
+│         │           │  - Optional JWT     │  │
+│         │           │  - Hub / Rooms      │  │
+│         │           └─────────────────────┘  │
+│         │                                    │
+│  guards/Services → cross-system DI           │
+│  PB Hooks → Discord notifications            │
+│  PB Hooks → WS Hub broadcasts                │
+│  PB Routes → Auth-gated page serving         │
+│                                              │
 └─────────┬────────────────────────────────────┘
-│ serves
+          │ serves
 ┌─────────▼───────┐
-│ pb_public/ │ ← SvelteKit static build
-│ (SvelteKit) │
+│   pb_public/    │ ← SvelteKit static build
+│   (SvelteKit)   │
 └─────────────────┘
 ```
 
@@ -88,6 +88,9 @@ A reusable project template combining a Go backend with a SvelteKit frontend.
 │       ├── handlers/          # Self-registering message type handlers
 │       ├── rooms/             # Room type definitions with guard lists
 │       └── resolvers/         # WS state lookups via Services
+├── scripts/
+│   └── seed/
+│       └── main.go            # Dev test data seed — edit vars here, run with `task db:seed`
 ├── sveltekit/                 # SvelteKit frontend (Skeleton UI v4, adapter-static → pb_public/)
 ├── .env.example               # Env template (shared by backend + frontend via envDir)
 ├── .air.toml                  # Go hot reload config
@@ -101,15 +104,16 @@ A reusable project template combining a Go backend with a SvelteKit frontend.
 
 ## Prerequisites
 
-- **Go 1.25+**
-- **pnpm** — `npm install -g pnpm`
-- **Task** — `go install github.com/go-task/task/v3/cmd/task@latest`
-- **Air** (for dev) — `go install github.com/air-verse/air@latest`
-- **Podman** (optional, for containers)
+- **Go 1.25+** — runs the backend; [go.dev/dl](https://go.dev/dl)
+- **pnpm** _(preferred)_ — package manager for the frontend; `npm install -g pnpm`. npm and yarn work but the project is developed with pnpm.
+- **Podman** _(optional)_ — for building and running containers; Docker works as a drop-in alternative.
+- **Task** _(optional)_ — task runner for dev commands like `task dev` and `task build`; `go install github.com/go-task/task/v3/cmd/task@latest`. Without it, run `air` and `pnpm dev` in separate terminals.
+- **Air** _(optional)_ — Go hot-reload; auto-rebuilds the server on `.go` file saves; `go install github.com/air-verse/air@latest`. Without it, use `go run ./cmd/server serve` and restart manually.
 
 ## Quick Start
 
 1. **Clone and rename the module:**
+
    ```bash
    git clone https://github.com/Stewball32/stew-site-template.git my-project
    cd my-project
@@ -117,19 +121,20 @@ A reusable project template combining a Go backend with a SvelteKit frontend.
    ```
 
 2. **Configure environment:**
+
    ```bash
    cp .env.example .env
-
-   # Edit .env with your Discord bot token, guild ID, etc.
-
+   # Only PUBLIC_PB_PORT is required. Discord bot and OAuth vars are optional.
    ```
 
 3. **Install frontend dependencies:**
+
    ```bash
    cd sveltekit && pnpm install && cd ..
    ```
 
 4. **Run in development:**
+
    ```bash
    task dev
    ```
@@ -157,7 +162,8 @@ For multiple instances on the same machine, set a unique `PUBLIC_PB_PORT` in eac
 
 ## Notes
 
-- `pb_data/` — PocketBase runtime data (SQLite DB, uploads). Created at runtime, gitignored.
+- `pb_data/` — PocketBase runtime data (SQLite DB, uploads). Created at runtime, gitignored. Nothing wipes it automatically — if data disappears, check for `git clean -fdx` in your workflow.
 - `pb_public/` — SvelteKit build output. Created by `task build:frontend`, gitignored.
 - Schema can be managed via PocketBase admin UI or programmatically in `internal/pocketbase/schema/`.
 - Protected pages are served through auth-gated custom routes; public pages are served directly from `pb_public/`.
+- `scripts/seed/main.go` — edit the `superusers`, `users`, and `posts` vars to define dev test data. Run `task db:seed` (with the server up) to create them idempotently — safe to re-run.
