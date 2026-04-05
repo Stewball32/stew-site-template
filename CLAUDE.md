@@ -1,8 +1,8 @@
 # CLAUDE.md
 
-> See also: [README.md](README.md) for project overview, tech stack, architecture diagram, and quick-start guide.
-
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+> See also: [README.md](README.md) for project overview, tech stack, architecture diagram, and quick-start guide.
 
 ## Development Commands
 
@@ -34,9 +34,25 @@ task build
 task container:build
 task container:run
 
+# Seed PocketBase with test data (server must be running)
+
+task db:seed
+
 # Clean build artifacts
 
 task clean
+
+# Run server directly (no Task/Air)
+
+go run ./cmd/server serve
+./bin/server serve
+
+# Frontend type-check, lint, format (run from sveltekit/)
+
+cd sveltekit
+pnpm check          # svelte-check + TypeScript
+pnpm lint           # prettier + eslint
+pnpm format         # prettier --write
 ```
 
 ## Architecture
@@ -100,6 +116,8 @@ Protected pages can be served through custom PocketBase routes that validate JWT
 
 - **UI framework:** Skeleton UI v4 (Svelte 5 + Tailwind CSS v4), cerberus theme
 - **API client:** PocketBase JS SDK (`pocketbase` npm package) — singleton in `src/lib/pocketbase.ts`
+- **Auth store:** `src/lib/stores/auth.svelte.ts` — uses Svelte 5 runes (`$state`/`$derived`), not writable stores
+- **Navigation:** `src/lib/config/navigation.ts` — central nav link config consumed by layout components
 - **WebSocket:** Browser native `WebSocket` API connecting to `/api/ws?token=PB_JWT`
 - **Routing:** SvelteKit file-based routing in `sveltekit/src/routes/`
 - **Build:** adapter-static outputs directly to `pb_public/` with SPA fallback
@@ -123,6 +141,8 @@ Handlers orchestrate by calling resolvers/guards/actions from multiple systems �
 
 ## Conventions
 
+- **Go module path** is `github.com/youruser/yourproject` — rename it when starting a new project (see README Quick Start).
+- **Adding new routes/hooks/commands/WS handlers:** create a new file in the relevant package, define a function, and call `register(fn)` from `init()`. No other file needs to change — the package-level `init()` runs automatically on import.
 - PocketBase v0.36.7 — uses `net/http.ServeMux`, NOT Echo. Hooks use `OnServe` not `OnBeforeServe`.
 - PocketBase extensions follow a registration pattern: hooks register before OnServe, schema/routes register inside OnServe via `RegisterAll()`
 - One `.go` file per logical domain in `schema/`, `hooks/`, `routes/`, and `commands/`
