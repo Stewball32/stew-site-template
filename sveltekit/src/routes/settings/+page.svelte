@@ -92,7 +92,7 @@
 					<!-- Input Groups -->
 					<label class="label">
 						<span>Display Name</span>
-						<div class="input-group">
+						<div class="input-group grid-cols-[auto_1fr_auto]">
 							<div class="ig-cell"><UserIcon class="size-4" /></div>
 							<input type="text" class="ig-input" bind:value={displayName} />
 						</div>
@@ -100,7 +100,7 @@
 
 					<label class="label">
 						<span>Email</span>
-						<div class="input-group">
+						<div class="input-group grid-cols-[auto_1fr_auto]">
 							<div class="ig-cell"><MailIcon class="size-4" /></div>
 							<input type="email" class="ig-input" bind:value={email} />
 						</div>
@@ -108,7 +108,7 @@
 
 					<label class="label">
 						<span>Timezone</span>
-						<div class="input-group">
+						<div class="input-group grid-cols-[auto_1fr_auto]">
 							<div class="ig-cell"><GlobeIcon class="size-4" /></div>
 							<select class="ig-select" bind:value={timezone}>
 								<option value="America/New_York">Eastern Time (ET)</option>
