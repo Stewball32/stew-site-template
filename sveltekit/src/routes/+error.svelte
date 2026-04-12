@@ -16,9 +16,9 @@
 	);
 </script>
 
-<div class="flex items-center justify-center min-h-[70vh]">
-	<div class="text-center space-y-6 max-w-md">
-		<TriangleAlertIcon class="size-16 mx-auto text-error-500" />
+<div class="flex min-h-[70vh] items-center justify-center">
+	<div class="max-w-md space-y-6 text-center">
+		<TriangleAlertIcon class="mx-auto size-16 text-error-500" />
 		<h1 class="h1 font-bold">{status}</h1>
 		<p class="text-lg opacity-70">{message}</p>
 		<div class="flex justify-center gap-4">
