@@ -1,11 +1,8 @@
 <script lang="ts">
 	import { fade } from 'svelte/transition';
 	import { Navigation } from '@skeletonlabs/skeleton-svelte';
-	import { CircleUserIcon, LogInIcon, LogOutIcon } from '@lucide/svelte';
 	import NavToggleButton from '$lib/components/NavToggle.svelte';
-	import { navLinks } from '$lib/config/navigation';
-	import { auth } from '$lib/stores/auth.svelte';
-	import { goto } from '$app/navigation';
+	import { mainLinks, footerLinks } from '$lib/config/navigation';
 
 	let {
 		open = $bindable(false),
@@ -21,12 +18,6 @@
 
 	function close() {
 		open = false;
-	}
-
-	function handleLogout() {
-		auth.logout();
-		close();
-		goto('/login/');
 	}
 
 	let navLayout = $derived<'rail' | 'sidebar'>(
@@ -69,7 +60,7 @@
 		{/if}
 		<Navigation.Content>
 			<Navigation.Menu>
-				{#each navLinks as link}
+				{#each mainLinks as link}
 					<Navigation.TriggerAnchor
 						href={link.href}
 						aria-current={currentPath === link.href ? 'page' : undefined}
@@ -86,32 +77,19 @@
 		</Navigation.Content>
 		<Navigation.Footer>
 			<Navigation.Menu>
-				{#if auth.isLoggedIn}
+				{#each footerLinks as link}
 					<Navigation.TriggerAnchor
-						href="/profile/"
-						aria-current={currentPath === '/profile/' ? 'page' : undefined}
+						href={link.href}
+						aria-current={currentPath === link.href ? 'page' : undefined}
 						class="aria-[current=page]:preset-tonal"
 						onclick={!isDesktop ? close : undefined}
 					>
-						<CircleUserIcon class="size-5" />
+						<link.icon class="size-5" />
 						{#if navLayout === 'sidebar'}
-							<span class="flex-1 truncate">{auth.user?.email}</span>
+							<span>{link.label}</span>
 						{/if}
 					</Navigation.TriggerAnchor>
-					{#if navLayout === 'sidebar'}
-						<Navigation.Trigger onclick={handleLogout}>
-							<LogOutIcon class="size-5" />
-							<span>Logout</span>
-						</Navigation.Trigger>
-					{/if}
-				{:else}
-					<Navigation.TriggerAnchor href="/login/" onclick={!isDesktop ? close : undefined}>
-						<LogInIcon class="size-5" />
-						{#if navLayout === 'sidebar'}
-							<span>Sign In</span>
-						{/if}
-					</Navigation.TriggerAnchor>
-				{/if}
+				{/each}
 			</Navigation.Menu>
 		</Navigation.Footer>
 	</Navigation>

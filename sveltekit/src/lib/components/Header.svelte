@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { AppBar, Avatar } from '@skeletonlabs/skeleton-svelte';
-	import NavToggleButton from '$lib/components/NavToggle.svelte';
+	import NavToggle from '$lib/components/NavToggle.svelte';
 	import { auth } from '$lib/stores/auth.svelte';
 	import { LogInIcon, LogOutIcon } from '@lucide/svelte';
 
@@ -21,11 +21,10 @@
 <AppBar class="h-16 p-4">
 	<AppBar.Toolbar class="grid-cols-[1fr_auto]">
 		<AppBar.Lead>
-			<NavToggleButton onclick={onToggle} />
+			<NavToggle onclick={onToggle} />
 		</AppBar.Lead>
 		<AppBar.Trail>
-			{auth.user?.name}
-			{auth.isLoggedIn}
+			{auth.user?.avatar}
 			{#if auth.isLoggedIn}
 				<div class="flex items-center gap-2">
 					<a
@@ -35,7 +34,7 @@
 					>
 						<Avatar class="size-8">
 							<Avatar.Fallback>{initials}</Avatar.Fallback>
-							<Avatar.Image></Avatar.Image>
+							<Avatar.Image src={auth.user?.avatar} />
 						</Avatar>
 						<span class="hidden text-sm font-medium sm:block">
 							{auth.user?.name ?? auth.user?.email}
