@@ -1,4 +1,4 @@
-import { LayoutDashboardIcon, CircleUserIcon, SettingsIcon } from '@lucide/svelte';
+import { LayoutDashboardIcon, SettingsIcon } from '@lucide/svelte';
 import type { Component } from 'svelte';
 
 export interface NavLink {
@@ -7,8 +7,10 @@ export interface NavLink {
 	icon: Component;
 }
 
-export const navLinks: NavLink[] = [
-	{ label: 'Dashboard', href: '/', icon: LayoutDashboardIcon },
-	{ label: 'Profile', href: '/profile/', icon: CircleUserIcon },
+export const mainLinks: NavLink[] = [
+	{ label: 'Dashboard', href: '/examples/dashboard/', icon: LayoutDashboardIcon }
+];
+
+export const footerLinks: NavLink[] = [
 	{ label: 'Settings', href: '/settings/', icon: SettingsIcon }
 ];
