@@ -46,7 +46,7 @@
 			<form class="space-y-4" onsubmit={handleLogin}>
 				<label class="label">
 					<span>Email</span>
-					<div class="input-group">
+					<div class="input-group grid-cols-[auto_1fr_auto]">
 						<div class="ig-cell"><MailIcon class="size-4" /></div>
 						<input
 							type="email"
@@ -60,7 +60,7 @@
 
 				<label class="label">
 					<span>Password</span>
-					<div class="input-group">
+					<div class="input-group grid-cols-[auto_1fr_auto]">
 						<div class="ig-cell"><LockIcon class="size-4" /></div>
 						<input
 							type="password"
