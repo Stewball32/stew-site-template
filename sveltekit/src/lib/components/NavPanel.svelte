@@ -10,10 +10,12 @@
 	let {
 		open = $bindable(false),
 		isDesktop,
+		isTablet,
 		currentPath
 	}: {
 		open: boolean;
 		isDesktop: boolean;
+		isTablet: boolean;
 		currentPath: string;
 	} = $props();
 
@@ -28,7 +30,7 @@
 	}
 
 	let navLayout = $derived<'rail' | 'sidebar'>(
-		isDesktop ? (open ? 'sidebar' : 'rail') : 'sidebar'
+		isDesktop || isTablet ? (open ? 'sidebar' : 'rail') : 'sidebar'
 	);
 </script>
 
@@ -36,7 +38,9 @@
 {#if !isDesktop && open}
 	<!-- svelte-ignore a11y_no_static_element_interactions -->
 	<div
-		class="fixed inset-0 z-40 bg-black/50"
+		class:fixed={!isTablet}
+		class:absolute={isTablet}
+		class="inset-0 z-40 bg-black/50"
 		onclick={close}
 		onkeydown={close}
 		transition:fade={{ duration: 200 }}
@@ -47,17 +51,18 @@
 <div
 	class:h-full={isDesktop}
 	class:flex={isDesktop}
-	class:fixed={!isDesktop}
+	class:fixed={!isDesktop && !isTablet}
+	class:absolute={isTablet}
 	class:inset-y-0={!isDesktop}
 	class:left-0={!isDesktop}
 	class:z-50={!isDesktop}
-	class:transition-transform={!isDesktop}
-	class:duration-300={!isDesktop}
-	class:-translate-x-full={!isDesktop && !open}
-	class:translate-x-0={!isDesktop && open}
+	class:transition-transform={!isDesktop && !isTablet}
+	class:duration-300={!isDesktop && !isTablet}
+	class:-translate-x-full={!isDesktop && !isTablet && !open}
+	class:translate-x-0={!isDesktop && !isTablet && open}
 >
 	<Navigation layout={navLayout} class="h-full">
-		{#if !isDesktop}
+		{#if !isDesktop && !isTablet}
 			<Navigation.Header class="pb-4">
 				<NavToggleButton onclick={close} />
 			</Navigation.Header>
