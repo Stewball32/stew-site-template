@@ -2,7 +2,7 @@ root = "."
 tmp_dir = "tmp"
 
 [build]
-  cmd = "go build -o ./tmp/server.exe ./cmd/server"
+  cmd = "go build -tags dev -o ./tmp/server.exe ./cmd/server"
   entrypoint = "./tmp/server.exe"
   args_bin = ["serve"]
   delay = 1000
