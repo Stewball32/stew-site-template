@@ -37,6 +37,11 @@ tasks:
     sources: ["cmd/**/*.go", "internal/**/*.go", "go.mod", "go.sum"]
     generates: ["bin/server"]
 
+  db:seed:
+    desc: Seed PocketBase with test data (server must be running)
+    cmds:
+      - go run ./scripts/seed
+
   clean:
     desc: Remove build artifacts
     cmds:
