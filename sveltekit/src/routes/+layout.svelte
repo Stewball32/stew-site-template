@@ -1,10 +1,12 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { Toast } from '@skeletonlabs/skeleton-svelte';
 	import './layout.css';
 	import favicon from '$lib/assets/favicon.svg';
 	import Header from '$lib/components/Header.svelte';
 	import NavPanel from '$lib/components/NavPanel.svelte';
 	import MobileNavBar from '$lib/components/MobileNavBar.svelte';
+	import { toaster } from '$lib/stores/toaster';
 	import { page } from '$app/state';
 
 	let { children } = $props();
@@ -56,3 +58,15 @@
 	</div>
 	<MobileNavBar currentPath={page.url.pathname} />
 </div>
+
+<Toast.Group {toaster}>
+	{#snippet children(toast)}
+		<Toast {toast}>
+			<Toast.Message>
+				<Toast.Title>{toast.title}</Toast.Title>
+				<Toast.Description>{toast.description}</Toast.Description>
+			</Toast.Message>
+			<Toast.CloseTrigger />
+		</Toast>
+	{/snippet}
+</Toast.Group>
