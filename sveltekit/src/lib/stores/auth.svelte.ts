@@ -26,6 +26,9 @@ function createAuthStore() {
 		async login(email: string, password: string) {
 			await pb.collection('users').authWithPassword(email, password);
 		},
+		async loginWithOAuth(provider: string) {
+			await pb.collection('users').authWithOAuth2({ provider });
+		},
 		logout() {
 			pb.authStore.clear();
 		}
