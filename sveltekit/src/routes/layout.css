@@ -5,6 +5,8 @@
 
 @plugin '@tailwindcss/forms';
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @layer base {
 	body {
 		@variant dark {
