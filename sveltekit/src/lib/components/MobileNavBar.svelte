@@ -3,7 +3,7 @@
 	import { mainLinks, footerLinks } from '$lib/config/navigation';
 
 	let { currentPath }: { currentPath: string } = $props();
-	const links = [...mainLinks, ...footerLinks];
+	const links = [...mainLinks, ...footerLinks].filter((l) => l.showInBar);
 </script>
 
 <div class="fixed inset-x-0 bottom-0 z-30 flex sm:hidden">

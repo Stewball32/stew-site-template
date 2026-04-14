@@ -2,7 +2,7 @@
 	import { fade } from 'svelte/transition';
 	import { Navigation } from '@skeletonlabs/skeleton-svelte';
 	import NavToggleButton from '$lib/components/NavToggle.svelte';
-	import { mainLinks, footerLinks } from '$lib/config/navigation';
+	import { mainGroups, footerLinks } from '$lib/config/navigation';
 
 	let {
 		open = $bindable(false),
@@ -52,28 +52,33 @@
 	class:-translate-x-full={!isDesktop && !isTablet && !open}
 	class:translate-x-0={!isDesktop && !isTablet && open}
 >
-	<Navigation layout={navLayout} class="h-full">
+	<Navigation layout={navLayout} class="flex h-full min-h-0 flex-col overflow-hidden">
 		{#if !isDesktop && !isTablet}
 			<Navigation.Header class="pb-4">
 				<NavToggleButton onclick={close} />
 			</Navigation.Header>
 		{/if}
-		<Navigation.Content>
-			<Navigation.Menu>
-				{#each mainLinks as link}
-					<Navigation.TriggerAnchor
-						href={link.href}
-						aria-current={currentPath === link.href ? 'page' : undefined}
-						class="aria-[current=page]:preset-tonal"
-						onclick={!isDesktop ? close : undefined}
-					>
-						<link.icon class="size-5" />
-						{#if navLayout === 'sidebar'}
-							<span>{link.label}</span>
-						{/if}
-					</Navigation.TriggerAnchor>
-				{/each}
-			</Navigation.Menu>
+		<Navigation.Content class="flex min-h-0 flex-1 flex-col overflow-y-auto">
+			{#each mainGroups as group}
+				<Navigation.Group>
+					{#if navLayout === 'sidebar'}
+						<Navigation.Label>{group.label}</Navigation.Label>
+					{/if}
+					<Navigation.Menu>
+						{#each group.links as link}
+							<Navigation.TriggerAnchor
+								href={link.href}
+								aria-current={currentPath === link.href ? 'page' : undefined}
+								class="aria-[current=page]:preset-tonal"
+								onclick={!isDesktop ? close : undefined}
+							>
+								<link.icon class="size-5" />
+								<Navigation.TriggerText>{link.label}</Navigation.TriggerText>
+							</Navigation.TriggerAnchor>
+						{/each}
+					</Navigation.Menu>
+				</Navigation.Group>
+			{/each}
 		</Navigation.Content>
 		<Navigation.Footer>
 			<Navigation.Menu>
