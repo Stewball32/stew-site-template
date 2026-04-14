@@ -259,7 +259,7 @@
 
 <!-- Stat Cards -->
 <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-	{#each stats as stat}
+	{#each stats as stat (stat.label)}
 		<div class="space-y-3 card p-6 card-hover">
 			<div class="flex items-center justify-between">
 				<div class="flex items-center gap-3">
@@ -298,7 +298,7 @@
 					</tr>
 				</thead>
 				<tbody class="[&>tr]:hover:preset-tonal-primary">
-					{#each activityRows as row}
+					{#each activityRows as row (row.name + row.action)}
 						<tr>
 							<td>
 								<div class="flex items-center gap-2">
@@ -323,7 +323,7 @@
 	<div class="space-y-4 card p-6">
 		<h2 class="h4">Quick Actions</h2>
 		<div class="space-y-3">
-			{#each quickActions as action}
+			{#each quickActions as action (action.title)}
 				<div class="card p-4 card-hover">
 					<div class="flex items-center gap-4">
 						<div class="flex items-center justify-center rounded-full bg-surface-200-800 p-2">
@@ -345,7 +345,7 @@
 <div class="mt-6 space-y-4 card p-6">
 	<h2 class="h4">Project Status</h2>
 	<Accordion multiple collapsible>
-		{#each projects as project}
+		{#each projects as project (project.name)}
 			<Accordion.Item value={project.name}>
 				<Accordion.ItemTrigger>
 					<span>{project.name}</span>
@@ -371,7 +371,7 @@
 							<span class="text-sm font-semibold">{project.progress}%</span>
 						</div>
 						<div class="flex flex-wrap gap-2">
-							{#each project.tags as tag}
+							{#each project.tags as tag (tag)}
 								<span class="badge preset-outlined-primary-500 text-xs">{tag}</span>
 							{/each}
 						</div>
