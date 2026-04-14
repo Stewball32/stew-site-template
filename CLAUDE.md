@@ -8,7 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Before writing or reviewing code that touches a third-party library where the API may have drifted from your training data, consult up-to-date docs rather than guessing.
 
-- **Skeleton UI v4** — [sveltekit/docs/skeleton-llms.txt](sveltekit/docs/skeleton-llms.txt) is a table of contents of Skeleton's official docs (components, theming, Tailwind v4 integration). Read it first to locate the right page, then WebFetch the specific page under `https://www.skeleton.dev/` (e.g. `https://www.skeleton.dev/docs/svelte/components/app-bar.md`). Always use the **Svelte** section, not React.
+- **Skeleton UI v4** — [sveltekit/docs/skeleton-llms.txt](sveltekit/docs/skeleton-llms.txt) is a table of contents of Skeleton's official docs (components, theming, Tailwind v4 integration). Read it first to locate the right page, then WebFetch the specific page under `https://www.skeleton.dev/` (e.g. `https://www.skeleton.dev/docs/svelte/framework-components/app-bar.md`, `https://www.skeleton.dev/docs/svelte/tailwind-components/buttons`). Always use the **Svelte** section, not React.
 - **SvelteKit, PocketBase JS SDK, Disgo, Tailwind v4** — WebFetch the official docs site (`kit.svelte.dev`, `pocketbase.io/docs`, `disgo.dev`, `tailwindcss.com`) rather than inventing an API.
 
 ## Development Commands
@@ -92,32 +92,32 @@ Protected pages can be served through custom PocketBase routes that validate JWT
 
 ### Key packages
 
-| Package                          | Purpose                                                                |
-| -------------------------------- | ---------------------------------------------------------------------- |
-| `internal/guards`                | Unified cross-system guards, `Services` struct, `GuardFunc` type       |
-| `internal/guards/interfaces/discord`    | Per-method Discord interfaces (Membership, Roles, Notify, Voice) |
-| `internal/guards/interfaces/websocket`  | Per-method WS interfaces (Connected, Rooms, Broadcast)           |
-| `internal/guards/interfaces/pocketbase` | Per-method PB interfaces (Users)                                 |
-| `internal/pocketbase`            | PB service wrapper — implements `pbiface.Service`                      |
-| `internal/pocketbase/schema`     | Programmatic collection definitions — one file per domain              |
-| `internal/pocketbase/hooks`      | Record event hooks — fire Discord notifications, push to WS clients    |
-| `internal/pocketbase/oauth`      | OAuth2 provider config — env-driven, self-registering, one per file    |
-| `internal/pocketbase/routes`     | Custom endpoints + protected page serving via auth-gated routes        |
-| `internal/pocketbase/routes/middleware` | Auth middleware, role checks, global middleware registry         |
-| `internal/pocketbase/routes/admin`     | Route group for `/api/admin` — auth + admin middleware           |
-| `internal/pocketbase/actions`    | Reusable PB data operations — one exported function per file           |
-| `internal/pocketbase/resolvers`  | PB data lookups — one exported function per file                       |
-| `internal/websocket`             | WebSocket Hub, client management, message routing, JWT auth upgrade    |
-| `internal/websocket/handlers`    | Self-registering WS message handlers — one per file                    |
-| `internal/websocket/rooms`       | Room type definitions with guard lists — one per file                  |
-| `internal/websocket/resolvers`   | WS state lookups via Services — one exported function per file         |
-| `internal/disgo`                 | Bot client setup: NewBot(), OpenGateway(), Close(), action methods     |
-| `internal/disgo/commands`        | Slash command definitions and handler functions                        |
-| `internal/disgo/events`          | Discord gateway event listeners for non-interaction events             |
-| `internal/disgo/actions`         | Reusable Discord API calls — one exported function per file            |
-| `internal/disgo/resolvers`       | Discord data lookups via Services — one exported function per file     |
-| `internal/disgo/components`      | UI builder factories (buttons, embeds, rows, selects, modals)          |
-| `internal/disgo/guards`          | Bot-side permission checks bridging Discord ↔ PocketBase               |
+| Package                                 | Purpose                                                             |
+| --------------------------------------- | ------------------------------------------------------------------- |
+| `internal/guards`                       | Unified cross-system guards, `Services` struct, `GuardFunc` type    |
+| `internal/guards/interfaces/discord`    | Per-method Discord interfaces (Membership, Roles, Notify, Voice)    |
+| `internal/guards/interfaces/websocket`  | Per-method WS interfaces (Connected, Rooms, Broadcast)              |
+| `internal/guards/interfaces/pocketbase` | Per-method PB interfaces (Users)                                    |
+| `internal/pocketbase`                   | PB service wrapper — implements `pbiface.Service`                   |
+| `internal/pocketbase/schema`            | Programmatic collection definitions — one file per domain           |
+| `internal/pocketbase/hooks`             | Record event hooks — fire Discord notifications, push to WS clients |
+| `internal/pocketbase/oauth`             | OAuth2 provider config — env-driven, self-registering, one per file |
+| `internal/pocketbase/routes`            | Custom endpoints + protected page serving via auth-gated routes     |
+| `internal/pocketbase/routes/middleware` | Auth middleware, role checks, global middleware registry            |
+| `internal/pocketbase/routes/admin`      | Route group for `/api/admin` — auth + admin middleware              |
+| `internal/pocketbase/actions`           | Reusable PB data operations — one exported function per file        |
+| `internal/pocketbase/resolvers`         | PB data lookups — one exported function per file                    |
+| `internal/websocket`                    | WebSocket Hub, client management, message routing, JWT auth upgrade |
+| `internal/websocket/handlers`           | Self-registering WS message handlers — one per file                 |
+| `internal/websocket/rooms`              | Room type definitions with guard lists — one per file               |
+| `internal/websocket/resolvers`          | WS state lookups via Services — one exported function per file      |
+| `internal/disgo`                        | Bot client setup: NewBot(), OpenGateway(), Close(), action methods  |
+| `internal/disgo/commands`               | Slash command definitions and handler functions                     |
+| `internal/disgo/events`                 | Discord gateway event listeners for non-interaction events          |
+| `internal/disgo/actions`                | Reusable Discord API calls — one exported function per file         |
+| `internal/disgo/resolvers`              | Discord data lookups via Services — one exported function per file  |
+| `internal/disgo/components`             | UI builder factories (buttons, embeds, rows, selects, modals)       |
+| `internal/disgo/guards`                 | Bot-side permission checks bridging Discord ↔ PocketBase            |
 
 ## Frontend Structure
 
@@ -136,10 +136,10 @@ Protected pages can be served through custom PocketBase routes that validate JWT
 
 The root layout (`+layout.svelte`) implements a 3-mode navigation system driven by a single `NavPanel` component:
 
-| Breakpoint | Nav mode |
-|---|---|
-| Mobile (`< sm`) | Bottom bar (`MobileNav`) + slide-in overlay drawer (`NavPanel`) |
-| Desktop (`< lg`) | Rail sidebar — icons only (`NavPanel layout="rail"`) |
+| Breakpoint       | Nav mode                                                             |
+| ---------------- | -------------------------------------------------------------------- |
+| Mobile (`< sm`)  | Bottom bar (`MobileNav`) + slide-in overlay drawer (`NavPanel`)      |
+| Desktop (`< lg`) | Rail sidebar — icons only (`NavPanel layout="rail"`)                 |
 | Desktop (`≥ lg`) | Toggle between rail and full sidebar via `NavToggle` in the `Header` |
 
 `NavToggle` toggles `navOpen`, which controls both the desktop rail↔sidebar expansion and the mobile overlay open/close state. `NavPanel` derives its Skeleton `layout` prop (`"rail"` | `"sidebar"`) from `open` and `isDesktop`.
@@ -153,6 +153,7 @@ The three main systems (PocketBase, Disgo, WebSocket) never import each other. C
 3. **Dependency injection** — `main.go` builds the `Services` struct and injects it into all three systems via `SetServices()`.
 
 Handler flow: **Trigger → Resolve → Guard → Action**
+
 - **Resolvers** stay in their own package (`pocketbase/resolvers/`, `disgo/resolvers/`, `websocket/resolvers/`) and only talk to their own system
 - **Guards** (`internal/guards/`) take `*Services` and check cross-system permissions
 - **Actions** are called through `Services` interfaces (e.g., `svc.Discord.SendNotification()`, `svc.WS.BroadcastRaw()`)
