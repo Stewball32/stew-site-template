@@ -136,7 +136,7 @@
 			<h3 class="h4">About</h3>
 
 			<div class="space-y-4">
-				{#each aboutDetails as detail}
+				{#each aboutDetails as detail (detail.label)}
 					<div class="flex items-center gap-3">
 						<detail.icon class="size-4 text-surface-400-600" />
 						<span class="text-sm opacity-70">{detail.label}</span>
@@ -150,7 +150,7 @@
 			<div class="space-y-3">
 				<h4 class="text-sm font-semibold">Skills</h4>
 				<div class="flex flex-wrap gap-2">
-					{#each skills as skill}
+					{#each skills as skill (skill)}
 						<span class="chip preset-outlined-primary-500">{skill}</span>
 					{/each}
 				</div>
@@ -168,7 +168,7 @@
 
 				<Tabs.Content value="posts">
 					<div class="space-y-4 pt-2">
-						{#each posts as post}
+						{#each posts as post (post.title)}
 							<div class="space-y-1">
 								<h4 class="cursor-pointer text-sm font-semibold hover:text-primary-500">
 									{post.title}
@@ -185,7 +185,7 @@
 
 				<Tabs.Content value="activity">
 					<div class="space-y-0 pt-2">
-						{#each activityLog as entry}
+						{#each activityLog as entry (entry.date + entry.action)}
 							<div class="flex gap-3 border-l-2 border-surface-300-700 py-3 pl-4">
 								<span class="text-xs font-semibold whitespace-nowrap opacity-50">{entry.date}</span>
 								<p class="text-sm">{entry.action}</p>
@@ -201,7 +201,7 @@
 	<div class="space-y-4 card p-6">
 		<h3 class="h4">Connections</h3>
 		<div class="flex gap-4 overflow-x-auto pb-2">
-			{#each connections as person}
+			{#each connections as person (person.name)}
 				<Tooltip>
 					<Tooltip.Trigger>
 						<div class="flex min-w-[120px] flex-col items-center gap-2 text-center">
