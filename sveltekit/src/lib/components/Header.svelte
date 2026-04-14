@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { AppBar, Avatar } from '@skeletonlabs/skeleton-svelte';
 	import NavToggle from '$lib/components/NavToggle.svelte';
+	import ModeToggle from '$lib/components/ModeToggle.svelte';
 	import { auth } from '$lib/stores/auth.svelte';
 	import { LogInIcon, LogOutIcon } from '@lucide/svelte';
 
@@ -24,6 +25,7 @@
 			<NavToggle onclick={onToggle} />
 		</AppBar.Lead>
 		<AppBar.Trail>
+			<ModeToggle />
 			{auth.user?.avatar}
 			{#if auth.isLoggedIn}
 				<div class="flex items-center gap-2">
