@@ -88,9 +88,6 @@ A reusable project template combining a Go backend with a SvelteKit frontend.
 │       ├── handlers/          # Self-registering message type handlers
 │       ├── rooms/             # Room type definitions with guard lists
 │       └── resolvers/         # WS state lookups via Services
-├── scripts/
-│   └── seed/
-│       └── main.go            # Dev test data seed — edit vars here, run with `task db:seed`
 ├── sveltekit/                 # SvelteKit frontend (Skeleton UI v4, adapter-static → pb_public/)
 ├── .env.example               # Env template (shared by backend + frontend via envDir)
 ├── .air.toml                  # Go hot reload config
@@ -166,4 +163,3 @@ For multiple instances on the same machine, set a unique `PUBLIC_PB_PORT` in eac
 - `pb_public/` — SvelteKit build output. Created by `task build:frontend`, gitignored.
 - Schema can be managed via PocketBase admin UI or programmatically in `internal/pocketbase/schema/`.
 - Protected pages are served through auth-gated custom routes; public pages are served directly from `pb_public/`.
-- `scripts/seed/main.go` — edit the `superusers`, `users`, and `posts` vars to define dev test data. Run `task db:seed` (with the server up) to create them idempotently — safe to re-run.
