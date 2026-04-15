@@ -11,9 +11,16 @@ tasks:
     cmds: ["air -c .air.toml"]
 
   dev:frontend:
-    desc: Run SvelteKit dev server
+    desc: Run SvelteKit dev server (typegen retries in background until backend ready)
     dir: sveltekit
-    cmds: ["pnpm dev"]
+    cmds:
+      - cmd: "for i in $(seq 1 15); do pnpm typegen 2>/dev/null && break; sleep 2; done &"
+      - cmd: "pnpm dev"
+
+  typegen:
+    desc: Generate TypeScript types from running PocketBase instance (requires task dev:backend)
+    dir: sveltekit
+    cmds: ["pnpm typegen"]
 
   build:
     desc: Build production binary with static frontend
@@ -36,11 +43,6 @@ tasks:
       - CGO_ENABLED=0 go build -o ./bin/server ./cmd/server
     sources: ["cmd/**/*.go", "internal/**/*.go", "go.mod", "go.sum"]
     generates: ["bin/server"]
-
-  db:seed:
-    desc: Seed PocketBase with test data (server must be running)
-    cmds:
-      - go run ./scripts/seed
 
   clean:
     desc: Remove build artifacts
