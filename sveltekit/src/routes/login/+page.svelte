@@ -3,15 +3,13 @@
 	import { goto } from '$app/navigation';
 	import { auth } from '$lib/stores/auth.svelte';
 	import pb from '$lib/pocketbase';
-	import { OAUTH_PROVIDERS } from '$lib/config/oauth';
-	import { Switch } from '@skeletonlabs/skeleton-svelte';
+	import { OAUTH_PROVIDERS } from '$lib/config/app';
 	import { LogInIcon, MailIcon, LockIcon } from '@lucide/svelte';
 
 	let email = $state('');
 	let password = $state('');
 	let error = $state('');
 	let loading = $state(false);
-	let rememberMe = $state(false);
 	let enabledProviders = $state<string[]>([]);
 
 	const visibleProviders = $derived(
@@ -19,6 +17,12 @@
 			.filter((name) => name in OAUTH_PROVIDERS)
 			.map((name) => ({ name, meta: OAUTH_PROVIDERS[name] }))
 	);
+
+	const layout = $derived(
+		visibleProviders.length <= 2 ? 'single' : visibleProviders.length <= 6 ? 'double' : 'compact'
+	);
+
+	const isOdd = $derived(visibleProviders.length % 2 !== 0);
 
 	onMount(async () => {
 		try {
@@ -104,11 +108,7 @@
 					</div>
 				</label>
 
-				<div class="flex items-center justify-between">
-					<div class="flex items-center gap-2">
-						<Switch checked={rememberMe} onCheckedChange={(e) => (rememberMe = e.checked)} />
-						<span class="text-sm">Remember me</span>
-					</div>
+				<div class="flex justify-end">
 					<a href="/login/" class="text-sm text-primary-500 hover:underline">Forgot password?</a>
 				</div>
 
@@ -126,15 +126,37 @@
 				</div>
 
 				<!-- Social Login -->
-				<div class="grid grid-cols-2 gap-3">
-					{#each visibleProviders as { name, meta } (name)}
+				<div
+					class="grid gap-3"
+					class:grid-cols-1={layout === 'single'}
+					class:grid-cols-2={layout === 'double'}
+					class:grid-cols-4={layout === 'compact'}
+				>
+					{#each visibleProviders as { name, meta }, i (name)}
 						<button
 							type="button"
 							class="btn w-full preset-tonal"
+							class:col-span-2={layout === 'double' && isOdd && i === visibleProviders.length - 1}
 							disabled={loading}
+							title={meta.label}
 							onclick={() => handleOAuth(name)}
 						>
-							<span>{meta.label}</span>
+							<img
+								src={meta.icon}
+								alt={meta.label}
+								class="shrink-0"
+								class:size-8={layout === 'single'}
+								class:size-6={layout !== 'single'}
+							/>
+							{#if layout !== 'compact'}
+								<span class="flex-1 text-center">{meta.label}</span>
+								<span
+									class="shrink-0"
+									class:size-8={layout === 'single'}
+									class:size-6={layout !== 'single'}
+									aria-hidden="true"
+								></span>
+							{/if}
 						</button>
 					{/each}
 				</div>
