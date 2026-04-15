@@ -26,13 +26,27 @@ func registerUsersCollection(app *pocketbase.PocketBase) error {
 	}
 
 	// Guard each field with GetByName so reboots stay idempotent.
-	if users.Fields.GetByName("age") == nil {
-		users.Fields.Add(&core.NumberField{
-			Name:    "age",
-			Min:     f64(0),
-			Max:     f64(120),
-			OnlyInt: true,
+	if users.Fields.GetByName("username") == nil {
+		users.Fields.Add(&core.TextField{
+			Name:        "username",
+			Min:         2,
+			Max:         16,
+			Presentable: true,
+			Required:    true,
 		})
+	}
+
+	// Unique index — idempotent by name
+	const idxName = "idx_users_username_unique"
+	if users.GetIndex(idxName) == "" {
+		users.AddIndex(idxName, true, "username", "")
+	}
+
+	users.OAuth2.MappedFields = core.OAuth2KnownFields{
+		Name:      "username", // OAuth2 full name  → users.username (user.name adds '#0' behind the username)
+		AvatarURL: "avatar",   // OAuth2 avatar URL → users.avatar
+		Username:  "username", // OAuth2 username   → users.username
+		Id:        "",         // OAuth2 id         → (unmapped)
 	}
 
 	return app.Save(users)
