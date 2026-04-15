@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
 	import {
 		Tabs,
 		Switch,
@@ -11,31 +12,37 @@
 	import {
 		UserIcon,
 		MailIcon,
-		GlobeIcon,
 		BellIcon,
-		BellOffIcon,
 		MailCheckIcon,
 		MessageSquareIcon,
-		PaletteIcon,
 		Trash2Icon,
-		UploadIcon,
-		XIcon
+		UploadIcon
 	} from '@lucide/svelte';
+	import { auth } from '$lib/stores/auth.svelte';
+	import pb from '$lib/pocketbase';
+	import { getFileURL } from '$lib/utils/files';
+	import { toaster } from '$lib/stores/toaster';
+	import type { UsersResponse } from '$lib/types/pocketbase-types';
+	import type { RecordModel } from 'pocketbase';
 
 	let activeTab = $state('general');
 
-	// General tab state
-	let displayName = $state('Jane Doe');
-	let email = $state('jane.doe@example.com');
-	let timezone = $state('America/New_York');
+	// General tab state — load() guarantees auth.user is non-null here
+	const _user = auth.user as UsersResponse;
+	let displayName = $state(_user?.name ?? '');
+	let email = $state(_user?.email ?? '');
+	let avatarUrl = $state<string | null>(getFileURL(_user as RecordModel, 'avatar', { thumb: '160x160' }));
+	let pendingAvatarFile = $state<File | null>(null);
+	let saving = $state(false);
+	let deleting = $state(false);
 
-	// Notifications tab state
+	// Notifications tab state (local UI only — no PB field)
 	let pushNotifs = $state(true);
 	let emailNotifs = $state(true);
 	let inAppNotifs = $state(false);
 	let notifFrequency = $state([50]);
 
-	// Appearance tab state
+	// Appearance tab state (local UI only — no PB field)
 	let density = $state<string[]>(['comfortable']);
 	let reduceAnimations = $state(false);
 
@@ -47,6 +54,64 @@
 		{ name: 'Warning', class: 'bg-warning-500' },
 		{ name: 'Error', class: 'bg-error-500' }
 	];
+
+	function loadUserData() {
+		const user = auth.user as UsersResponse;
+		displayName = user.name ?? '';
+		email = user.email ?? '';
+		avatarUrl = getFileURL(user as RecordModel, 'avatar', { thumb: '160x160' });
+	}
+
+	function handleAvatarAccept(details: { files: File[] }) {
+		const file = details.files[0];
+		if (!file) return;
+		pendingAvatarFile = file;
+		avatarUrl = URL.createObjectURL(file);
+	}
+
+	async function saveGeneral() {
+		if (!auth.user) return;
+		saving = true;
+		try {
+			const data: Record<string, unknown> = { name: displayName, email };
+			if (pendingAvatarFile) data.avatar = pendingAvatarFile;
+			await pb.collection('users').update(auth.user.id, data);
+			pendingAvatarFile = null;
+			toaster.success({ title: 'Saved', description: 'Your profile has been updated.' });
+		} catch (err) {
+			toaster.error({
+				title: 'Error',
+				description: err instanceof Error ? err.message : 'Failed to save settings.'
+			});
+		} finally {
+			saving = false;
+		}
+	}
+
+	function resetGeneral() {
+		pendingAvatarFile = null;
+		loadUserData();
+	}
+
+	async function deleteAccount() {
+		if (!auth.user) return;
+		const confirmed = confirm(
+			'Permanently delete your account and all associated data? This cannot be undone.'
+		);
+		if (!confirmed) return;
+		deleting = true;
+		try {
+			await pb.collection('users').delete(auth.user.id);
+			auth.logout();
+			goto('/login/');
+		} catch (err) {
+			toaster.error({
+				title: 'Error',
+				description: err instanceof Error ? err.message : 'Failed to delete account.'
+			});
+			deleting = false;
+		}
+	}
 </script>
 
 <h1 class="mb-6 h2">Settings</h1>
@@ -70,10 +135,12 @@
 					<!-- Avatar Upload -->
 					<div class="flex items-center gap-6">
 						<Avatar class="size-20">
-							<Avatar.Image src="https://i.pravatar.cc/160?img=5" />
-							<Avatar.Fallback>JD</Avatar.Fallback>
+							{#if avatarUrl}
+								<Avatar.Image src={avatarUrl} />
+							{/if}
+							<Avatar.Fallback>{displayName.slice(0, 2).toUpperCase() || '?'}</Avatar.Fallback>
 						</Avatar>
-						<FileUpload maxFiles={1} accept="image/*">
+						<FileUpload maxFiles={1} accept="image/*" onFileAccept={handleAvatarAccept}>
 							<FileUpload.Dropzone class="card preset-outlined-surface-200-800 p-4">
 								<div class="flex flex-col items-center gap-2 text-center">
 									<UploadIcon class="size-8 text-surface-400-600" />
@@ -105,22 +172,6 @@
 							<input type="email" class="ig-input" bind:value={email} />
 						</div>
 					</label>
-
-					<label class="label">
-						<span>Timezone</span>
-						<div class="input-group grid-cols-[auto_1fr_auto]">
-							<div class="ig-cell"><GlobeIcon class="size-4" /></div>
-							<select class="ig-select" bind:value={timezone}>
-								<option value="America/New_York">Eastern Time (ET)</option>
-								<option value="America/Chicago">Central Time (CT)</option>
-								<option value="America/Denver">Mountain Time (MT)</option>
-								<option value="America/Los_Angeles">Pacific Time (PT)</option>
-								<option value="Europe/London">Greenwich Mean Time (GMT)</option>
-								<option value="Europe/Berlin">Central European Time (CET)</option>
-								<option value="Asia/Tokyo">Japan Standard Time (JST)</option>
-							</select>
-						</div>
-					</label>
 				</div>
 
 				<!-- Danger Zone -->
@@ -129,16 +180,18 @@
 					<p class="text-sm opacity-70">
 						Permanently delete your account and all associated data. This action cannot be undone.
 					</p>
-					<button class="btn preset-filled-error-500">
+					<button class="btn preset-filled-error-500" onclick={deleteAccount} disabled={deleting}>
 						<Trash2Icon class="size-4" />
-						<span>Delete Account</span>
+						<span>{deleting ? 'Deleting...' : 'Delete Account'}</span>
 					</button>
 				</div>
 
 				<!-- Save -->
 				<div class="flex gap-3">
-					<button class="btn preset-filled">Save Changes</button>
-					<button class="btn preset-tonal">Reset</button>
+					<button class="btn preset-filled" onclick={saveGeneral} disabled={saving}>
+						{saving ? 'Saving...' : 'Save Changes'}
+					</button>
+					<button class="btn preset-tonal" onclick={resetGeneral} disabled={saving}>Reset</button>
 				</div>
 			</div>
 		</Tabs.Content>
