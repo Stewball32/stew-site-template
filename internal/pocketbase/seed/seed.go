@@ -76,6 +76,7 @@ func ensureUser(app *pocketbase.PocketBase, u seedUser) error {
 	record.Set("email", u.Email)
 	record.Set("password", u.Password)
 	record.Set("name", u.Name)
+	record.Set("username", u.Username)
 
 	if err := app.Save(record); err != nil {
 		return err
