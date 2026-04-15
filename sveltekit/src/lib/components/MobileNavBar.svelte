@@ -18,7 +18,7 @@
 						href={link.href}
 						aria-current={currentPath === link.href ? 'page' : undefined}
 						class="aria-[current=page]:preset-tonal"
-					>
+						>
 						<link.icon class="size-5" />
 						<span class="text-xs">{link.label}</span>
 					</Navigation.TriggerAnchor>

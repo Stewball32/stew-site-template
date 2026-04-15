@@ -88,7 +88,7 @@
 						aria-current={currentPath === link.href ? 'page' : undefined}
 						class="aria-[current=page]:preset-tonal"
 						onclick={!isDesktop ? close : undefined}
-					>
+						>
 						<link.icon class="size-5" />
 						{#if navLayout === 'sidebar'}
 							<span>{link.label}</span>
