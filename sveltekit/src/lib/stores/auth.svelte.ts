@@ -1,8 +1,8 @@
 import pb from '$lib/pocketbase';
-import type { RecordModel } from 'pocketbase';
+import type { AuthModel } from 'pocketbase';
 
 function createAuthStore() {
-	let user = $state<RecordModel | null>(pb.authStore.record);
+	let user = $state<AuthModel | null>(pb.authStore.record);
 	let token = $state(pb.authStore.token);
 	let isValid = $state(pb.authStore.isValid);
 	let isLoggedIn = $derived(isValid && user !== null);
