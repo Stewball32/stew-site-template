@@ -36,6 +36,20 @@ func registerUsersCollection(app *pocketbase.PocketBase) error {
 		})
 	}
 
+	if users.Fields.GetByName("bio") == nil {
+		users.Fields.Add(&core.TextField{
+			Name: "bio",
+			Max:  500,
+		})
+	}
+
+	if users.Fields.GetByName("location") == nil {
+		users.Fields.Add(&core.TextField{
+			Name: "location",
+			Max:  100,
+		})
+	}
+
 	// Unique index — idempotent by name
 	const idxName = "idx_users_username_unique"
 	if users.GetIndex(idxName) == "" {
