@@ -5,11 +5,25 @@
 	import favicon from '$lib/assets/favicon.svg';
 	import Header from '$lib/components/Header.svelte';
 	import NavPanel from '$lib/components/NavPanel.svelte';
-	import MobileNavBar from '$lib/components/MobileNavBar.svelte';
+	import NavBar from '$lib/components/NavBar.svelte';
 	import { toaster } from '$lib/stores/toaster';
 	import { page } from '$app/state';
+	import { goto } from '$app/navigation';
+	import { auth } from '$lib/stores/auth.svelte';
+	import { isLayoutHidden } from '$lib/config/layout';
+	import { buildLoginUrl } from '$lib/utils/redirect';
 
 	let { children } = $props();
+
+	const hideLayout = $derived(isLayoutHidden(page.url.pathname));
+
+	$effect(() => {
+		if (page.data.requiresAuth && !auth.isLoggedIn) {
+			// buildLoginUrl returns a runtime-validated path — not a static route literal
+			// eslint-disable-next-line svelte/no-navigation-without-resolve
+			goto(buildLoginUrl(page.url.pathname + page.url.search));
+		}
+	});
 	let navOpen = $state(false);
 	let isTablet = $state(false);
 	let isDesktop = $state(false);
@@ -47,17 +61,23 @@
 
 <svelte:head><link rel="icon" href={favicon} /></svelte:head>
 
-<div class="flex h-screen flex-col">
-	<Header onToggle={handleToggle} />
-	<div class="relative flex flex-1 overflow-hidden">
-		<div class="hidden w-25 shrink-0 sm:flex lg:hidden" aria-hidden="true"></div>
-		<NavPanel bind:open={navOpen} {isDesktop} {isTablet} currentPath={page.url.pathname} />
-		<main class="flex-1 overflow-y-auto p-4 pb-20 sm:pb-4 lg:p-8 lg:pb-8">
-			{@render children()}
-		</main>
+{#if hideLayout}
+	<main class="min-h-screen">
+		{@render children()}
+	</main>
+{:else}
+	<div class="flex h-screen flex-col">
+		<Header onToggle={handleToggle} />
+		<div class="relative flex flex-1 overflow-hidden">
+			<div class="hidden w-25 shrink-0 sm:flex lg:hidden" aria-hidden="true"></div>
+			<NavPanel bind:open={navOpen} {isDesktop} {isTablet} currentPath={page.url.pathname} />
+			<main class="flex-1 overflow-y-auto p-4 pb-20 sm:pb-4 lg:p-8 lg:pb-8">
+				{@render children()}
+			</main>
+		</div>
+		<NavBar currentPath={page.url.pathname} />
 	</div>
-	<MobileNavBar currentPath={page.url.pathname} />
-</div>
+{/if}
 
 <Toast.Group {toaster}>
 	{#snippet children(toast)}

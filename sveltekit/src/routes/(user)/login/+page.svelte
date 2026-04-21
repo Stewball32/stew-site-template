@@ -1,10 +1,14 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 	import { auth } from '$lib/stores/auth.svelte';
 	import pb from '$lib/pocketbase';
 	import { OAUTH_PROVIDERS } from '$lib/config/app';
+	import { buildRegisterUrl } from '$lib/utils/redirect';
 	import { LogInIcon, MailIcon, LockIcon } from '@lucide/svelte';
+
+	let { data } = $props();
 
 	let email = $state('');
 	let password = $state('');
@@ -39,7 +43,9 @@
 		loading = true;
 		try {
 			await auth.login(email, password);
-			goto('/');
+			// data.redirectTo is runtime-validated in +page.ts via safeRedirectTarget
+			// eslint-disable-next-line svelte/no-navigation-without-resolve
+			goto(data.redirectTo);
 		} catch (err) {
 			error = err instanceof Error ? err.message : 'Login failed. Please try again.';
 		} finally {
@@ -52,7 +58,8 @@
 		loading = true;
 		try {
 			await auth.loginWithOAuth(provider);
-			goto('/');
+			// eslint-disable-next-line svelte/no-navigation-without-resolve
+			goto(data.redirectTo);
 		} catch (err) {
 			error = err instanceof Error ? err.message : 'OAuth sign-in failed. Please try again.';
 		} finally {
@@ -109,7 +116,9 @@
 				</label>
 
 				<div class="flex justify-end">
-					<a href="/login/" class="text-sm text-primary-500 hover:underline">Forgot password?</a>
+					<a href={resolve('/forgot-password/')} class="text-sm text-primary-500 hover:underline"
+						>Forgot password?</a
+					>
 				</div>
 
 				<button type="submit" class="btn w-full preset-filled" disabled={loading}>
@@ -164,8 +173,12 @@
 		</div>
 
 		<!-- Footer -->
-		<!-- <p class="text-center text-xs opacity-50">
-			By continuing, you agree to our Terms of Service and Privacy Policy.
-		</p> -->
+		<p class="text-center text-sm opacity-70">
+			Don't have an account?
+			<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
+			<a href={buildRegisterUrl(data.redirectTo)} class="text-primary-500 hover:underline"
+				>Create one</a
+			>
+		</p>
 	</div>
 </div>
