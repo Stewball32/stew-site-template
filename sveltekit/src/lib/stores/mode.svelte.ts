@@ -14,7 +14,9 @@ function createModeStore() {
 		document.documentElement.classList.toggle('dark', next === 'dark');
 		try {
 			localStorage.setItem('mode', next);
-		} catch (e) {}
+		} catch {
+			// localStorage may be unavailable (private mode, quota, disabled)
+		}
 	}
 
 	return {
