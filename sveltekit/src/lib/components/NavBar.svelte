@@ -13,12 +13,12 @@
 				class="grid gap-2"
 				style="grid-template-columns: repeat({links.length}, minmax(0, 1fr));"
 			>
-				{#each links as link}
+				{#each links as link (link.href)}
 					<Navigation.TriggerAnchor
 						href={link.href}
 						aria-current={currentPath === link.href ? 'page' : undefined}
 						class="aria-[current=page]:preset-tonal"
-						>
+					>
 						<link.icon class="size-5" />
 						<span class="text-xs">{link.label}</span>
 					</Navigation.TriggerAnchor>

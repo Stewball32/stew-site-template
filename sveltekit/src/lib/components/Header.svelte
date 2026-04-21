@@ -1,9 +1,12 @@
 <script lang="ts">
 	import { AppBar, Avatar } from '@skeletonlabs/skeleton-svelte';
+	import { resolve } from '$app/paths';
 	import NavToggle from '$lib/components/NavToggle.svelte';
 	import ModeToggle from '$lib/components/ModeToggle.svelte';
 	import { auth } from '$lib/stores/auth.svelte';
 	import { LogInIcon, LogOutIcon } from '@lucide/svelte';
+	import { getFileURL } from '$lib/utils/files';
+	import type { RecordModel } from 'pocketbase';
 
 	let { onToggle }: { onToggle: () => void } = $props();
 
@@ -26,17 +29,16 @@
 		</AppBar.Lead>
 		<AppBar.Trail>
 			<ModeToggle />
-			{auth.user?.avatar}
-			{#if auth.isLoggedIn}
+			{#if auth.isLoggedIn && auth.user}
 				<div class="flex items-center gap-2">
 					<a
-						href="/profile/"
+						href={resolve('/profile/')}
 						class="rounded-token flex items-center gap-2 px-2 py-1 hover:preset-tonal"
 						title={auth.user?.email}
 					>
 						<Avatar class="size-8">
 							<Avatar.Fallback>{initials}</Avatar.Fallback>
-							<Avatar.Image src={auth.user?.avatar} />
+							<Avatar.Image src={getFileURL(auth.user as RecordModel, 'avatar')} />
 						</Avatar>
 						<span class="hidden text-sm font-medium sm:block">
 							{auth.user?.name ?? auth.user?.email}
@@ -51,7 +53,7 @@
 					</button>
 				</div>
 			{:else}
-				<a href="/login/" class="btn preset-tonal btn-sm">
+				<a href={resolve('/login/')} class="btn preset-tonal btn-sm">
 					<LogInIcon class="size-4" />
 					<span>Login</span>
 				</a>
