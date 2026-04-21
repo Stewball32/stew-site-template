@@ -1,34 +1,61 @@
 <script lang="ts">
-	import { AppBar } from '@skeletonlabs/skeleton-svelte';
-	import { MenuIcon, LogInIcon, LogOutIcon, CircleUserIcon } from '@lucide/svelte';
+	import { AppBar, Avatar } from '@skeletonlabs/skeleton-svelte';
+	import { resolve } from '$app/paths';
+	import NavToggle from '$lib/components/NavToggle.svelte';
+	import ModeToggle from '$lib/components/ModeToggle.svelte';
 	import { auth } from '$lib/stores/auth.svelte';
-	import { goto } from '$app/navigation';
+	import { LogInIcon, LogOutIcon } from '@lucide/svelte';
+	import { getFileURL } from '$lib/utils/files';
+	import type { RecordModel } from 'pocketbase';
 
 	let { onToggle }: { onToggle: () => void } = $props();
 
-	function handleLogout() {
-		auth.logout();
-		goto('/login/');
-	}
+	const initials = $derived(
+		auth.user?.name
+			?.split(' ')
+			.map((n: string) => n[0])
+			.join('')
+			.toUpperCase()
+			.slice(0, 2) ??
+			auth.user?.email?.charAt(0).toUpperCase() ??
+			'?'
+	);
 </script>
 
-<AppBar>
-	<AppBar.Toolbar>
+<AppBar class="h-16 p-4">
+	<AppBar.Toolbar class="grid-cols-[1fr_auto]">
 		<AppBar.Lead>
-			<button class="btn-icon hover:preset-tonal" aria-label="Toggle navigation" onclick={onToggle}>
-				<MenuIcon class="size-5" />
-			</button>
-			<span class="text-xl font-bold">App Template</span>
+			<NavToggle onclick={onToggle} />
 		</AppBar.Lead>
 		<AppBar.Trail>
-			{#if auth.isLoggedIn}
-				<span class="hidden sm:inline text-sm opacity-70">{auth.user?.email}</span>
-				<button class="btn-icon hover:preset-tonal" aria-label="Logout" onclick={handleLogout}>
-					<LogOutIcon class="size-5" />
-				</button>
+			<ModeToggle />
+			{#if auth.isLoggedIn && auth.user}
+				<div class="flex items-center gap-2">
+					<a
+						href={resolve('/profile/')}
+						class="rounded-token flex items-center gap-2 px-2 py-1 hover:preset-tonal"
+						title={auth.user?.email}
+					>
+						<Avatar class="size-8">
+							<Avatar.Fallback>{initials}</Avatar.Fallback>
+							<Avatar.Image src={getFileURL(auth.user as RecordModel, 'avatar')} />
+						</Avatar>
+						<span class="hidden text-sm font-medium sm:block">
+							{auth.user?.name ?? auth.user?.email}
+						</span>
+					</a>
+					<button
+						class="btn-icon preset-tonal btn-sm"
+						onclick={() => auth.logout()}
+						title="Sign out"
+					>
+						<LogOutIcon class="size-4" />
+					</button>
+				</div>
 			{:else}
-				<a href="/login/" class="btn-icon hover:preset-tonal" aria-label="Login">
-					<LogInIcon class="size-5" />
+				<a href={resolve('/login/')} class="btn preset-tonal btn-sm">
+					<LogInIcon class="size-4" />
+					<span>Login</span>
 				</a>
 			{/if}
 		</AppBar.Trail>

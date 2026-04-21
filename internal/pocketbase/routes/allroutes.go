@@ -1,6 +1,9 @@
 package routes
 
 import (
+	"os"
+
+	"github.com/pocketbase/pocketbase/apis"
 	"github.com/pocketbase/pocketbase/core"
 	"github.com/youruser/yourproject/internal/pocketbase/routes/middleware"
 )
@@ -19,4 +22,10 @@ func RegisterAll(se *core.ServeEvent) {
 	middleware.Init(se)                    // 1. global middleware
 	registerAllGroups(se)                  // 2. group packages (from allgroups.go)
 	for _, fn := range registry { fn(se) } // 3. ungrouped routes
+
+	// 4. SPA catch-all — MUST be registered last so more specific routes
+	//    above take priority. Serves pb_public/ with indexFallback=true
+	//    so unknown paths resolve to index.html and the SvelteKit client
+	//    router can handle them.
+	se.Router.GET("/{path...}", apis.Static(os.DirFS("pb_public"), true))
 }

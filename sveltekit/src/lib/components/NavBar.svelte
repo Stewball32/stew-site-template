@@ -1,15 +1,19 @@
 <script lang="ts">
 	import { Navigation } from '@skeletonlabs/skeleton-svelte';
-	import { navLinks } from '$lib/config/navigation';
+	import { mainLinks, footerLinks } from '$lib/config/navigation';
 
 	let { currentPath }: { currentPath: string } = $props();
+	const links = [...mainLinks, ...footerLinks].filter((l) => l.showInBar);
 </script>
 
-<div class="flex lg:hidden fixed bottom-0 inset-x-0 z-30">
+<div class="fixed inset-x-0 bottom-0 z-30 flex sm:hidden">
 	<Navigation layout="bar" class="w-full">
 		<Navigation.Content>
-			<Navigation.Menu>
-				{#each navLinks as link}
+			<Navigation.Menu
+				class="grid gap-2"
+				style="grid-template-columns: repeat({links.length}, minmax(0, 1fr));"
+			>
+				{#each links as link (link.href)}
 					<Navigation.TriggerAnchor
 						href={link.href}
 						aria-current={currentPath === link.href ? 'page' : undefined}

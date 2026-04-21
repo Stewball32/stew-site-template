@@ -33,6 +33,7 @@ adapter-static outputs directly to `pb_public/` with `fallback: 'index.html'` fo
 ## Layout Config
 
 `src/routes/+layout.ts` sets:
+
 - `ssr = false` — client-side only
 - `prerender = true` — static generation for known routes
 - `trailingSlash = 'always'` — consistent URL format
@@ -41,6 +42,6 @@ adapter-static outputs directly to `pb_public/` with `fallback: 'index.html'` fo
 
 ```sh
 pnpm dlx sv@0.13.1 create --template minimal --types ts --add tailwindcss="plugins:none" sveltekit-adapter="adapter:static" prettier eslint --install pnpm .
-pnpm add -D @skeletonlabs/skeleton @skeletonlabs/skeleton-svelte
+pnpm add -D @skeletonlabs/skeleton @skeletonlabs/skeleton-svelte pocketbase-typegen
 pnpm add pocketbase
 ```

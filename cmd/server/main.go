@@ -11,6 +11,7 @@ import (
 	"github.com/youruser/yourproject/internal/pocketbase/oauth"
 	"github.com/youruser/yourproject/internal/pocketbase/routes"
 	"github.com/youruser/yourproject/internal/pocketbase/schema"
+	"github.com/youruser/yourproject/internal/pocketbase/seed"
 	ws "github.com/youruser/yourproject/internal/websocket"
 
 	discordbot "github.com/youruser/yourproject/internal/disgo"
@@ -36,6 +37,10 @@ func main() {
 		}
 
 		if err := oauth.RegisterAll(app); err != nil {
+			return err
+		}
+
+		if err := seed.Run(app); err != nil {
 			return err
 		}
 

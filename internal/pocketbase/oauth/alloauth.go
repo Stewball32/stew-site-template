@@ -38,11 +38,12 @@ func RegisterAll(app *pocketbase.PocketBase) error {
 			if existing[cfg.Name] {
 				log.Printf("oauth: removing previously configured provider %q (env vars missing)\n", cfg.Name)
 			} else {
-				log.Printf("oauth: skipping provider %q (env vars missing)\n", cfg.Name)
+				// log.Printf("oauth: skipping provider %q (env vars missing)\n", cfg.Name)
 			}
 			continue
 		}
 		providers = append(providers, cfg)
+		log.Printf("oauth: added %q\n", cfg.Name)
 	}
 
 	users.OAuth2.Enabled = len(providers) > 0

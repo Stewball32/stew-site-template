@@ -12,6 +12,7 @@ const gitignorePath = path.resolve(import.meta.dirname, '.gitignore');
 
 export default defineConfig(
 	includeIgnoreFile(gitignorePath),
+	{ ignores: ['src/lib/types/pocketbase-types.ts'] },
 	js.configs.recommended,
 	ts.configs.recommended,
 	svelte.configs.recommended,
