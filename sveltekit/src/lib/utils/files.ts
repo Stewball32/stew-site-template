@@ -1,5 +1,4 @@
 import pb from '$lib/pocketbase';
-import type { RecordModel } from 'pocketbase';
 
 export interface FileQueryParams {
 	thumb?: string; // e.g. '100x100' or '0x80'
@@ -15,11 +14,11 @@ export interface FileQueryParams {
  * const avatarUrl = getFileURL(userRecord, 'avatar', { thumb: '100x100' });
  */
 export function getFileURL(
-	record: RecordModel,
+	record: { id: string; collectionId: string; collectionName: string; [key: string]: unknown },
 	field: string,
 	params?: FileQueryParams
 ): string | null {
 	const filename = record[field];
 	if (!filename) return null;
-	return pb.files.getURL(record, filename, params);
+	return pb.files.getURL(record, filename as string, params);
 }
