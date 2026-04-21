@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { resolve } from '$app/paths';
 	import { APP_NAME } from '$lib/config/app';
 	import {
 		ServerIcon,
@@ -45,11 +46,11 @@
 			frontend — plus a Discord bot and WebSocket hub, all in one binary.
 		</p>
 		<div class="flex flex-wrap items-center justify-center gap-3">
-			<a href="/login/" class="btn preset-filled">
+			<a href={resolve('/login/')} class="btn preset-filled">
 				Get Started
 				<ArrowRightIcon class="size-4" />
 			</a>
-			<a href="/examples/dashboard/" class="btn preset-tonal">
+			<a href={resolve('/examples/dashboard/')} class="btn preset-tonal">
 				<LayoutDashboardIcon class="size-4" />
 				View Dashboard Example
 			</a>

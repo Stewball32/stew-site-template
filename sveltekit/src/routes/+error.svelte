@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/state';
+	import { resolve } from '$app/paths';
 	import { TriangleAlertIcon, HomeIcon, ArrowLeftIcon } from '@lucide/svelte';
 
 	const statusMessages: Record<number, string> = {
@@ -26,7 +27,7 @@
 				<ArrowLeftIcon class="size-4" />
 				<span>Go Back</span>
 			</button>
-			<a href="/" class="btn preset-filled">
+			<a href={resolve('/')} class="btn preset-filled">
 				<HomeIcon class="size-4" />
 				<span>Home</span>
 			</a>
