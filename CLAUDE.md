@@ -56,6 +56,10 @@ cd sveltekit
 pnpm check          # svelte-check + TypeScript
 pnpm lint           # prettier + eslint
 pnpm format         # prettier --write
+
+# Generate PocketBase TypeScript types (requires running dev server)
+
+task typegen
 ```
 
 ## Architecture
@@ -124,8 +128,7 @@ Protected pages can be served through custom PocketBase routes that validate JWT
 - **Mode store:** `src/lib/stores/mode.svelte.ts` — dark/light mode toggle, persisted in `localStorage`; call `mode.toggle()` or `mode.set('dark'|'light')`
 - **Toaster:** `src/lib/stores/toaster.ts` — global Skeleton toast singleton (`toaster`); import and call `toaster.trigger(...)` from any component
 - **Navigation:** `src/lib/config/navigation.ts` — central nav link config consumed by all four layout nav components; edit here to add/remove nav links
-- **App name:** `src/lib/config/app.ts` — exports `APP_NAME` constant, the sole customization point for the displayed app name
-- **OAuth providers:** `src/lib/config/oauth.ts` — defines display labels for each OAuth provider; actual enabled providers are discovered at runtime from PocketBase's `listAuthMethods()` API
+- **App config:** `src/lib/config/app.ts` — exports `APP_NAME` (displayed app name) and `OAUTH_PROVIDERS` (display labels + icons per provider); actual enabled providers are discovered at runtime from PocketBase's `listAuthMethods()` API
 - **WebSocket:** Browser native `WebSocket` API connecting to `/api/ws?token=PB_JWT`
 - **Routing:** SvelteKit file-based routing in `sveltekit/src/routes/`; `+layout.ts` sets `ssr = false`, `prerender = true`, `trailingSlash = 'always'` globally
 - **Build:** adapter-static outputs directly to `pb_public/` with SPA fallback
