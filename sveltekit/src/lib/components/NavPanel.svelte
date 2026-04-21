@@ -59,13 +59,13 @@
 			</Navigation.Header>
 		{/if}
 		<Navigation.Content class="flex min-h-0 flex-1 flex-col overflow-y-auto">
-			{#each mainGroups as group}
+			{#each mainGroups as group (group.label)}
 				<Navigation.Group>
 					{#if navLayout === 'sidebar'}
 						<Navigation.Label>{group.label}</Navigation.Label>
 					{/if}
 					<Navigation.Menu>
-						{#each group.links as link}
+						{#each group.links as link (link.href)}
 							<Navigation.TriggerAnchor
 								href={link.href}
 								aria-current={currentPath === link.href ? 'page' : undefined}
@@ -82,13 +82,13 @@
 		</Navigation.Content>
 		<Navigation.Footer>
 			<Navigation.Menu>
-				{#each footerLinks as link}
+				{#each footerLinks as link (link.href)}
 					<Navigation.TriggerAnchor
 						href={link.href}
 						aria-current={currentPath === link.href ? 'page' : undefined}
 						class="aria-[current=page]:preset-tonal"
 						onclick={!isDesktop ? close : undefined}
-						>
+					>
 						<link.icon class="size-5" />
 						{#if navLayout === 'sidebar'}
 							<span>{link.label}</span>

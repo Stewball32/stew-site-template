@@ -33,7 +33,12 @@ export const mainGroups: NavGroup[] = [
 	{
 		label: 'Overview',
 		links: [
-			{ label: 'Dashboard', href: '/examples/dashboard/', icon: LayoutDashboardIcon, showInBar: true },
+			{
+				label: 'Dashboard',
+				href: '/examples/dashboard/',
+				icon: LayoutDashboardIcon,
+				showInBar: true
+			},
 			{ label: 'Profile', href: '/examples/profile/', icon: UserIcon }
 		]
 	},
