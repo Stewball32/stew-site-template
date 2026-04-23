@@ -21,6 +21,8 @@ export interface NavLink {
 	label: string;
 	href: string;
 	icon: Component;
+	showInDrawer?: boolean;
+	showInRail?: boolean;
 	showInBar?: boolean;
 }
 

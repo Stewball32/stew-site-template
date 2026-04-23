@@ -2,7 +2,7 @@
 	import { fade } from 'svelte/transition';
 	import { Navigation } from '@skeletonlabs/skeleton-svelte';
 	import NavToggleButton from '$lib/components/NavToggle.svelte';
-	import { mainGroups, footerLinks } from '$lib/config/navigation';
+	import { mainGroups, footerLinks, type NavLink } from '$lib/config/navigation';
 
 	let {
 		open = $bindable(false),
@@ -23,6 +23,18 @@
 	let navLayout = $derived<'rail' | 'sidebar'>(
 		isDesktop || isTablet ? (open ? 'sidebar' : 'rail') : 'sidebar'
 	);
+
+	function isVisible(link: NavLink, layout: 'rail' | 'sidebar'): boolean {
+		return layout === 'sidebar' ? (link.showInDrawer ?? true) : (link.showInRail ?? true);
+	}
+
+	let visibleGroups = $derived(
+		mainGroups
+			.map((group) => ({ ...group, links: group.links.filter((l) => isVisible(l, navLayout)) }))
+			.filter((group) => group.links.length > 0)
+	);
+
+	let visibleFooterLinks = $derived(footerLinks.filter((l) => isVisible(l, navLayout)));
 </script>
 
 <!-- Mobile backdrop -->
@@ -59,7 +71,7 @@
 			</Navigation.Header>
 		{/if}
 		<Navigation.Content class="flex min-h-0 flex-1 flex-col overflow-y-auto">
-			{#each mainGroups as group (group.label)}
+			{#each visibleGroups as group (group.label)}
 				<Navigation.Group>
 					{#if navLayout === 'sidebar'}
 						<Navigation.Label>{group.label}</Navigation.Label>
@@ -82,7 +94,7 @@
 		</Navigation.Content>
 		<Navigation.Footer>
 			<Navigation.Menu>
-				{#each footerLinks as link (link.href)}
+				{#each visibleFooterLinks as link (link.href)}
 					<Navigation.TriggerAnchor
 						href={link.href}
 						aria-current={currentPath === link.href ? 'page' : undefined}
