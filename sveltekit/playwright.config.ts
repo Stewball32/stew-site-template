@@ -18,7 +18,7 @@ export default defineConfig({
 		}
 	],
 	webServer: {
-		command: 'pnpm preview',
+		command: 'pnpm exec sirv ../pb_public --single --port 4173 --quiet',
 		port: 4173,
 		reuseExistingServer: !process.env.CI
 	}

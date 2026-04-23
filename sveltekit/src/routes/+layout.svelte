@@ -12,6 +12,7 @@
 	import { auth } from '$lib/stores/auth.svelte';
 	import { isLayoutHidden } from '$lib/config/layout';
 	import { buildLoginUrl } from '$lib/utils/redirect';
+	import { APP_NAME } from '$lib/config/app';
 
 	let { children } = $props();
 
@@ -59,7 +60,10 @@
 	}
 </script>
 
-<svelte:head><link rel="icon" href={favicon} /></svelte:head>
+<svelte:head>
+	<title>{APP_NAME}</title>
+	<link rel="icon" href={favicon} />
+</svelte:head>
 
 {#if hideLayout}
 	<main class="min-h-screen">
