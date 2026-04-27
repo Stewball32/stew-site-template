@@ -74,7 +74,20 @@
 			{#each visibleGroups as group (group.label)}
 				<Navigation.Group>
 					{#if navLayout === 'sidebar'}
-						<Navigation.Label>{group.label}</Navigation.Label>
+						<Navigation.Label>
+							{#if group.href}
+								<a
+									href={group.href}
+									aria-current={currentPath === group.href ? 'page' : undefined}
+									class="hover:underline aria-[current=page]:underline"
+									onclick={!isDesktop ? close : undefined}
+								>
+									{group.label}
+								</a>
+							{:else}
+								{group.label}
+							{/if}
+						</Navigation.Label>
 					{/if}
 					<Navigation.Menu>
 						{#each group.links as link (link.href)}

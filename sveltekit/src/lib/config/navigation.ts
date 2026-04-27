@@ -28,6 +28,7 @@ export interface NavLink {
 
 export interface NavGroup {
 	label: string;
+	href?: string;
 	links: NavLink[];
 }
 
