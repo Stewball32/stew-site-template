@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"log"
+	"os"
+	"strings"
 
 	"github.com/pocketbase/pocketbase"
 	"github.com/pocketbase/pocketbase/core"
@@ -22,6 +24,10 @@ import (
 )
 
 func main() {
+	if port := os.Getenv("PUBLIC_PB_PORT"); port != "" && !hasHTTPFlag(os.Args) {
+		os.Args = append(os.Args, "--http=0.0.0.0:"+port)
+	}
+
 	app := pocketbase.New()
 
 	var bot *discordbot.Bot
@@ -100,4 +106,13 @@ func main() {
 	if err := app.Start(); err != nil {
 		log.Fatal(err)
 	}
+}
+
+func hasHTTPFlag(args []string) bool {
+	for _, a := range args {
+		if a == "--http" || strings.HasPrefix(a, "--http=") {
+			return true
+		}
+	}
+	return false
 }

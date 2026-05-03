@@ -1,7 +1,6 @@
 package websocket
 
 import (
-	"log"
 	"os"
 	"strings"
 
@@ -22,7 +21,7 @@ func NewHandler(hub *Hub, app core.App) func(*core.RequestEvent) error {
 		if token := e.Request.URL.Query().Get("token"); token != "" {
 			record, err := app.FindAuthRecordByToken(token, core.TokenTypeAuth)
 			if err != nil {
-				log.Printf("ws: invalid auth token: %v", err)
+				app.Logger().Warn("ws: invalid auth token", "error", err)
 			} else {
 				user = record
 			}
