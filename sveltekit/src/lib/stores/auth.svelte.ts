@@ -4,14 +4,22 @@ import type { UsersResponse } from '$lib/types/pocketbase-types';
 function createAuthStore() {
 	let user = $state<UsersResponse | null>(pb.authStore.record as UsersResponse | null);
 	let token = $state(pb.authStore.token);
-	let isValid = $state(pb.authStore.isValid);
-	const isLoggedIn = $derived(isValid && user !== null);
+	const isLoggedIn = $derived(!!token && user !== null);
 
 	pb.authStore.onChange((newToken, record) => {
 		user = (record as UsersResponse | null) ?? null;
 		token = newToken;
-		isValid = !!newToken;
 	});
+
+	// pb.authStore.isValid only checks JWT expiry locally; if the server rotated
+	// signing keys (e.g. dev DB wipe on task dev restart), the cached token is
+	// stale. authRefresh() round-trips to verify; on 401 clear() cascades through
+	// onChange to reset the runes and snap the UI to logged-out.
+	if (pb.authStore.isValid) {
+		pb.collection('users')
+			.authRefresh()
+			.catch(() => pb.authStore.clear());
+	}
 
 	return {
 		get user() {
