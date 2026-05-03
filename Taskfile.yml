@@ -49,6 +49,10 @@ tasks:
     cmds:
       - rm -rf bin/ tmp/ pb_public/
 
+  install:hooks:
+    desc: Install Git pre-commit hooks via lefthook (requires lefthook on PATH)
+    cmds: ["lefthook install"]
+
   container:build:
     desc: Build container image with Podman
     cmds: ["podman build -t yourproject -f Containerfile ."]

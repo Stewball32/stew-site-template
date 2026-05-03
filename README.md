@@ -105,6 +105,7 @@ A reusable project template combining a Go backend with a SvelteKit frontend.
 - **Podman** _(optional)_ — for building and running containers; Docker works as a drop-in alternative.
 - **Task** _(optional)_ — task runner for dev commands like `task dev` and `task build`; `go install github.com/go-task/task/v3/cmd/task@latest`. Without it, run `air` and `pnpm dev` in separate terminals.
 - **Air** _(optional)_ — Go hot-reload; auto-rebuilds the server on `.go` file saves; `go install github.com/air-verse/air@latest`. Without it, use `go run ./cmd/server serve` and restart manually.
+- **Lefthook** _(optional)_ — runs format/lint checks on staged files before each commit; `go install github.com/evilmartians/lefthook@latest`, then `task install:hooks` once.
 
 ## Quick Start
 
