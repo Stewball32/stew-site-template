@@ -63,8 +63,25 @@ jobs:
       - name: Vet
         run: go vet ./...
 
+      - name: Lint
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: latest
+
+      - name: Test
+        run: go test -race ./...
+
       - name: Build
         run: CGO_ENABLED=0 go build -o bin/server ./cmd/server
+
+  container:
+    name: Container build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build container image
+        run: podman build -t template-smoke -f Containerfile .
 
   e2e:
     name: E2E Tests
