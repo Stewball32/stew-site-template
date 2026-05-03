@@ -113,8 +113,11 @@ A reusable project template combining a Go backend with a SvelteKit frontend.
    ```bash
    git clone https://github.com/Stewball32/stew-site-template.git my-project
    cd my-project
-   grep -rl 'github.com/youruser/yourproject' . | xargs sed -i 's|github.com/youruser/yourproject|github.com/you/yourapp|g'
+   ./scripts/rename-module.sh github.com/you/yourapp
+   go mod tidy
    ```
+
+   The script rewrites `go.mod`, all Go imports, and the container image name in `Taskfile.yml`. The image name defaults to the basename of the module path; pass a second argument to override.
 
 2. **Configure environment:**
 
