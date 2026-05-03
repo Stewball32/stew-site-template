@@ -70,7 +70,7 @@ A reusable project template combining a Go backend with a SvelteKit frontend.
 │   │   ├── routes/            # Custom API routes + protected page serving
 │   │   │   └── middleware/    # Auth middleware, role checks
 │   │   ├── oauth/             # OAuth2 provider configuration
-│   │   ├── actions/           # Reusable PB data operations
+│   │   ├── seed/              # Dev-only seeder (compiled with -tags dev)
 │   │   └── resolvers/         # PB data lookups (one function per file)
 │   ├── disgo/
 │   │   ├── bot.go             # Bot client + interface methods + lifecycle
@@ -78,8 +78,7 @@ A reusable project template combining a Go backend with a SvelteKit frontend.
 │   │   ├── events/            # Discord gateway event listeners
 │   │   ├── actions/           # Reusable Discord API calls
 │   │   ├── resolvers/         # Discord data lookups via Services
-│   │   ├── components/        # UI builders (buttons, embeds, rows)
-│   │   └── guards/            # Bot-side permission checks
+│   │   └── components/        # UI builders (buttons, embeds, rows)
 │   └── websocket/
 │       ├── hub.go             # Client registry, rooms, message routing
 │       ├── handler.go         # WS upgrade with optional JWT auth

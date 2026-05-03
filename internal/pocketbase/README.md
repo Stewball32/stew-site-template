@@ -16,8 +16,8 @@ PocketBase application setup and customization.
 | `routes/middleware/`| `Init()`       | Per-route middleware functions + global middleware registry |
 | `routes/admin/`    | `RegisterAll()` | Route group for `/api/admin` (auth + admin middleware) |
 | `oauth/`           | `RegisterAll()` | OAuth2 provider configuration for auth collections |
-| `actions/`         | (none)          | Reusable PB data operations — one exported function per file |
 | `resolvers/`       | (none)          | PB data lookups — one exported function per file    |
+| `seed/`            | `Run()`         | Dev-only data seeder — compiled with `-tags dev`, no-op in production |
 
 Each subdir has a `.go.example` file showing the pattern for adding new domains.
 
@@ -96,15 +96,15 @@ Groups are hierarchical — a route belongs to exactly one group and inherits al
 3. Set the corresponding env vars (`PROVIDER_CLIENT_ID`, `PROVIDER_CLIENT_SECRET`)
 4. Done — no other files need editing
 
-### Action (no registry)
+### Resolver (no registry)
 
-Actions have no `init()` or `RegisterAll()` — they're just exported functions. Each file exports one function taking `app *pocketbase.PocketBase` as the first parameter.
+Resolvers have no `init()` or `RegisterAll()` — they're just exported functions. Each file exports one function taking `app core.App` as the first parameter and returning data from PocketBase. They are how the `Service` wrapper in `service.go` satisfies cross-system interfaces (e.g. `pbiface.Users`).
 
-1. Create a new file in `actions/` named after the operation (e.g., `find_user_by_discord_id.go`)
+1. Create a new file in `resolvers/` named after the lookup (e.g., `find_user_by_discord_id.go`)
 2. Export a single function (e.g., `FindUserByDiscordID(app, discordID)`)
-3. Call it from any trigger: routes, hooks, or Discord commands via cross-package import
+3. Call it from any trigger: routes, hooks, or — via the `Service` wrapper — from Discord commands and WebSocket handlers
 
-Actions are the shared logic layer — when multiple triggers (a route, a hook, and a Discord command) all need the same PB operation, extract it here.
+Resolvers are the shared lookup layer. When multiple triggers all need the same PB query, extract it here.
 
 ### Per-route middleware (one function per file)
 

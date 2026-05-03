@@ -45,10 +45,20 @@ task container:run
 
 task clean
 
+# Install Git pre-commit hooks (lefthook)
+
+task install:hooks
+
 # Run server directly (no Task/Air)
 
 go run ./cmd/server serve
 ./bin/server serve
+
+# Run Go tests
+
+go test ./...                              # all packages
+go test ./internal/guards/...              # single package
+go test -run TestAny ./internal/guards     # single test
 
 # Frontend type-check, lint, format (run from sveltekit/)
 
@@ -106,7 +116,6 @@ Protected pages can be served through custom PocketBase routes that validate JWT
 | `internal/pocketbase/routes/middleware` | Auth middleware, role checks, global middleware registry            |
 | `internal/pocketbase/routes/admin`      | Route group for `/api/admin` — auth + admin middleware              |
 | `internal/pocketbase/seed`              | In-process dev seeder — `data.go` defines seed vars, compiled only with `-tags dev` |
-| `internal/pocketbase/actions`           | Reusable PB data operations — one exported function per file        |
 | `internal/pocketbase/resolvers`         | PB data lookups — one exported function per file                    |
 | `internal/websocket`                    | WebSocket Hub, client management, message routing, JWT auth upgrade |
 | `internal/websocket/handlers`           | Self-registering WS message handlers — one per file                 |
@@ -118,7 +127,6 @@ Protected pages can be served through custom PocketBase routes that validate JWT
 | `internal/disgo/actions`                | Reusable Discord API calls — one exported function per file         |
 | `internal/disgo/resolvers`              | Discord data lookups via Services — one exported function per file  |
 | `internal/disgo/components`             | UI builder factories (buttons, embeds, rows, selects, modals)       |
-| `internal/disgo/guards`                 | Bot-side permission checks bridging Discord ↔ PocketBase            |
 
 ## Frontend Structure
 
@@ -176,13 +184,12 @@ Handlers orchestrate by calling resolvers/guards/actions from multiple systems �
 - WebSocket Hub supports: Broadcast (all clients), SendToUser (by user ID), SendToRoom (room members), plus `*Raw` variants taking `[]byte` for cross-system use via interfaces
 - Disgo uses `discord.SlashCommandCreate` for slash commands, raw event listeners for gateway events
 - Disgo actions take `*bot.Client` as first param — also exposed as methods on `Bot` for interface compliance
-- PB actions take `*pocketbase.PocketBase` as first param — callable from routes, hooks, or Discord commands
 - Disgo components are pure builder functions (no registry, no init) — one file per button/embed/row
-- Disgo guards are explicit checks called at the top of command handlers, not middleware
-- Cross-system guards in `internal/guards/` take `*Services` + `*core.Record`, usable from any system
+- Cross-system guards in `internal/guards/` take `*Services` + `*core.Record`, usable from any system — Discord command handlers and WebSocket room joins both call into this package
 - Interface files use one-interface-per-file convention for merge-safe parallel development
 - Custom routes registered in OnServe take priority over pb_public/ static file serving
-- `PUBLIC_PB_PORT` in root `.env` — single port variable used by Taskfile, compose, Containerfile, and SvelteKit (via `$env/static/public`). The `PUBLIC_` prefix is required by SvelteKit for client-side access
+- `PUBLIC_PB_PORT` in root `.env` — single port variable used by Taskfile, compose, Containerfile, and SvelteKit (via `$env/static/public`). The `PUBLIC_` prefix is required by SvelteKit for client-side access. The server binary also self-binds to it on startup: if `PUBLIC_PB_PORT` is set and no `--http` flag was passed, `cmd/server/main.go` injects `--http=0.0.0.0:$PUBLIC_PB_PORT` into `os.Args` — so `./bin/server serve` works without explicit flags
+- Use `app.Logger()` (slog-based) inside PocketBase request handlers, hooks, and routes — not the stdlib `log` package — so output stays consistent with PocketBase's structured logs
 - SvelteKit `trailingSlash = 'always'` is set globally — all route hrefs must end with `/` (e.g. `/login/`, not `/login`), otherwise navigation breaks with the static adapter
 - **Seeding:** Air (`task dev`) builds with `-tags dev`, causing `seed.Run(app)` to execute automatically at server startup using `internal/pocketbase/seed/data.go`. Edit `data.go` to change seed data.
 - **Dev vs prod builds:** `air` (dev) compiles with `-tags dev`; `task build:backend` compiles without it. The `//go:build dev` constraint in `internal/pocketbase/seed/` means the seeder is a no-op in production binaries.

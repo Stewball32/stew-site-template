@@ -26,7 +26,7 @@ Provides a WebSocket endpoint mounted on PocketBase's ServeMux router. Handles c
 - `handler.go` — `NewHandler(hub, app)` returns PocketBase-compatible route handler
 - `message.go` — `Message` struct + type constants (`TypeBroadcast`, `TypeRoom`, `TypeDirect`, `TypeJoinRoom`, `TypeLeaveRoom`, `TypeError`)
 - `handlers/allhandlers.go` — `Event` type (carries `Services` for cross-system access) + `HandlerFunc` + registry (`register()` / `Get()`)
-- `handlers/guards.go` — `RequireAuth()`, `RequireRole()`, `RequireAdmin()` guard functions
+- `rooms/registry.go` — `RoomType{Name, Guards, Config}`, room-name resolution (`Resolve()` parses `"type:name"`), and `CheckGuards()` for join-time enforcement
 
 ## Auth Flow
 
@@ -67,43 +67,27 @@ svc.WS.SendToRoomRaw("lobby", jsonBytes)
 
 ## Guards
 
-Guard functions in `handlers/guards.go` enforce access control at the top of message handlers. They mirror the Disgo guards pattern (`internal/disgo/guards/`) — explicit checks that return errors on failure.
-
-| Guard | Checks |
-|-------|--------|
-| `RequireAuth(e)` | `e.User != nil` — client is authenticated |
-| `RequireRole(e, role)` | Authenticated + `e.User.GetString("role") == role` |
-| `RequireAdmin(e)` | Authenticated + `e.User.GetBool("isAdmin")` |
-
-Handlers use `e.SendError(code, message)` to notify the client when a guard fails.
-
-### Admin-only room
+Access control is attached to **room types**, not message handlers. Each `RoomType` declares a list of guards from [internal/guards/](../guards/) — the same package used by Discord commands and PocketBase routes — and the `join_room` handler runs them before adding the client to the room.
 
 ```go
-func handleJoinRoom(e *Event) {
-    if e.Room == "admin-chat" {
-        if err := RequireAdmin(e); err != nil {
-            e.SendError("forbidden", "admin access required")
-            return
-        }
-    }
-    e.JoinRoom(e.Room)
+// internal/websocket/rooms/admin.go
+func init() {
+    register(&RoomType{
+        Name:   "admin",
+        Guards: []GuardFunc{guards.RequireAdmin},
+    })
 }
 ```
 
-### Public room, authenticated posting
+Clients join rooms using a `"type:name"` convention (e.g., `"admin:dashboard"`); `rooms.Resolve()` strips the suffix and looks up the type. On a join attempt:
 
-```go
-func handleChat(e *Event) {
-    if err := RequireAuth(e); err != nil {
-        e.SendError("unauthorized", "must be logged in to send messages")
-        return
-    }
-    e.SendToRoom(e.Room, e.Payload)
-}
-```
+1. [handlers/join_room.go](handlers/join_room.go) calls `rooms.Resolve(e.Room)` — unknown type → `"not_found"` error to the client.
+2. `rt.CheckGuards(e.Services, e.User)` runs each `GuardFunc` in order — first error → `"forbidden"` error to the client.
+3. Otherwise the client is added via `e.JoinRoom(...)`.
 
-Anonymous users still receive messages (they're in the room), they just can't trigger the chat handler.
+Guards take `(*guards.Services, *core.Record)` so they can cross-reference Discord membership, PocketBase fields, or any other system. See [internal/guards/README.md](../guards/README.md) for the full guard catalog.
+
+Anonymous users (no JWT) pass `nil` as the user record — guards must handle that case (most return an error).
 
 ## Origin Policy
 
@@ -124,6 +108,12 @@ WS_ALLOWED_ORIGINS=yourdomain.com,*.yourdomain.com
 1. Copy `handlers/handler.go.example`, rename to your message type (e.g., `chat.go`)
 2. Add an `init()` function that calls `register("your_type", handlerFunc)`
 3. Done — Hub dispatches messages with `"type":"your_type"` to your handler automatically
+
+### Room type (self-registering)
+
+1. Copy `rooms/room.go.example`, rename to your type (e.g., `lobby.go`)
+2. Add an `init()` function that calls `register(&RoomType{Name: "lobby", Guards: []GuardFunc{...}})`
+3. Done — clients joining `"lobby"` or `"lobby:foo"` are matched and gated by your guards
 
 ### Action (no registry)
 

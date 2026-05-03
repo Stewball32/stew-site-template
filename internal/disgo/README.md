@@ -15,7 +15,6 @@ Creates and manages the Disgo bot client. Registers slash commands and attaches 
 | `actions/`     | Reusable Discord API calls — one exported function per file          |
 | `resolvers/`   | Discord data lookups via `*guards.Services` — one function per file  |
 | `components/`  | UI builder factories (buttons, embeds, rows, selects, modals)        |
-| `guards/`      | Bot-side permission checks bridging Discord ↔ PocketBase             |
 
 ## Key Files
 
@@ -64,10 +63,10 @@ The `Bot` struct also implements `discordiface.Service` — its action methods (
 
 ## Design Principles
 
-- **One file, one thing** — every command, guard, button, embed, action is its own `.go` file
+- **One file, one thing** — every command, button, embed, action is its own `.go` file
 - **Triggers vs actions** — commands and event listeners are triggers; reusable Discord API calls live in `actions/`
 - **Component builders, not component handlers** — `components/` holds styled UI factory functions; interaction handlers stay with the command that created them
-- **Guards, not middleware** — Discord doesn't have middleware; guards are explicit checks called at the top of command handlers
+- **Cross-system guards live in `internal/guards/`** — Discord doesn't have middleware, so command handlers call guard functions explicitly at the top. Use the unified guards package so the same checks work from PocketBase routes/hooks and WebSocket room joins.
 - **Portability** — copy a file to another project, IDE flags missing deps, done
 
 ## Adding New Items
@@ -96,8 +95,6 @@ The `Bot` struct also implements `discordiface.Service` — its action methods (
 2. Export a pure builder function (e.g., `buttons.Confirm(customID) discord.ButtonComponent`)
 3. Use it in command handlers to build styled UI elements
 
-### Guard (no registry)
+### Guard (cross-system)
 
-1. Create a new file in `guards/` (e.g., `require_guild_owner.go`)
-2. Export a single function that takes the interaction event, checks a condition, returns an error on failure
-3. Call it explicitly at the top of command handlers
+Guards live in [internal/guards/](../guards/) — a single package shared by Discord commands, PocketBase routes/hooks, and WebSocket room joins. To add a new check, create a `require_*.go` file there and call it from the top of your command handler with the resolved user record.
