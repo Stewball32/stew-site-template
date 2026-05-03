@@ -20,6 +20,15 @@
 		open = false;
 	}
 
+	$effect(() => {
+		if (!open || isDesktop) return;
+		const onKey = (e: KeyboardEvent) => {
+			if (e.key === 'Escape') close();
+		};
+		window.addEventListener('keydown', onKey);
+		return () => window.removeEventListener('keydown', onKey);
+	});
+
 	let navLayout = $derived<'rail' | 'sidebar'>(
 		isDesktop || isTablet ? (open ? 'sidebar' : 'rail') : 'sidebar'
 	);
@@ -39,15 +48,15 @@
 
 <!-- Mobile backdrop -->
 {#if !isDesktop && open}
-	<!-- svelte-ignore a11y_no_static_element_interactions -->
-	<div
+	<button
+		type="button"
+		aria-label="Close navigation"
 		class:fixed={!isTablet}
 		class:absolute={isTablet}
-		class="inset-0 z-40 bg-black/50"
+		class="inset-0 z-40 cursor-default bg-black/50"
 		onclick={close}
-		onkeydown={close}
 		transition:fade={{ duration: 200 }}
-	></div>
+	></button>
 {/if}
 
 <!-- Nav panel -->
@@ -76,6 +85,8 @@
 					{#if navLayout === 'sidebar'}
 						<Navigation.Label>
 							{#if group.href}
+								<!-- group.href is config-driven, not a static route literal -->
+								<!-- eslint-disable svelte/no-navigation-without-resolve -->
 								<a
 									href={group.href}
 									aria-current={currentPath === group.href ? 'page' : undefined}
@@ -84,6 +95,7 @@
 								>
 									{group.label}
 								</a>
+								<!-- eslint-enable svelte/no-navigation-without-resolve -->
 							{:else}
 								{group.label}
 							{/if}
