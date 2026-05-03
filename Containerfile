@@ -18,10 +18,15 @@ RUN CGO_ENABLED=0 GOOS=linux go build -o /server ./cmd/server
 
 # Stage 3: Runtime
 FROM alpine:latest
-RUN apk add --no-cache ca-certificates
+RUN apk add --no-cache ca-certificates wget && \
+    adduser -D -u 1000 app
 WORKDIR /app
 COPY --from=backend /server ./server
 COPY --from=frontend /pb_public ./pb_public/
+RUN mkdir -p /app/pb_data && chown -R app:app /app
+USER app
 EXPOSE 8090
 VOLUME /app/pb_data
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+    CMD wget -qO- http://localhost:8090/api/health || exit 1
 CMD ["./server", "serve", "--http=0.0.0.0:8090"]

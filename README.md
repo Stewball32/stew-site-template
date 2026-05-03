@@ -156,6 +156,19 @@ task container:run
 
 For multiple instances on the same machine, set a unique `PUBLIC_PB_PORT` in each project's `.env`. Route traffic with cloudflared or a reverse proxy.
 
+## Production deployment
+
+The container runs as non-root user `app` (UID 1000) and exposes a healthcheck on `/api/health`. A few things to know:
+
+- **Never commit a populated `.env`.** The committed `.env.example` is the public template; real secrets stay out of the repo. Inject them via your orchestrator:
+  - **Compose**: pass `--env-file` to `docker compose` / `podman-compose`, or use a `compose.override.yml` that's gitignored.
+  - **Kubernetes**: mount a `Secret` and reference it in the pod spec.
+  - **Bare `podman run` / `docker run`**: pass each variable with `-e VAR=value`.
+- **Persistent data**: the `pb_data` volume holds the SQLite DB and uploads — back it up regularly. On first run, the volume is initialized owned by UID 1000; if you bind-mount a host directory instead, `chown 1000:1000` it first.
+- **TLS**: PocketBase can terminate TLS itself with `--https`, but most deployments put it behind a reverse proxy (Caddy, Cloudflare Tunnel, nginx) that handles certificates.
+
+See the [PocketBase deployment docs](https://pocketbase.io/docs/going-to-production/) for backup, migration, and admin-creation patterns.
+
 ## Notes
 
 - `pb_data/` — PocketBase runtime data (SQLite DB, uploads). Created at runtime, gitignored. Nothing wipes it automatically — if data disappears, check for `git clean -fdx` in your workflow.
