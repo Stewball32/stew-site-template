@@ -211,12 +211,17 @@
 				<button class="input-group-cell" aria-label="Attach">
 					<PaperclipIcon class="size-4" />
 				</button>
-				<input
-					type="text"
+				<textarea
 					placeholder="Type a message..."
+					rows={1}
 					bind:value={draft}
-					onkeydown={(e) => e.key === 'Enter' && send()}
-				/>
+					onkeydown={(e) => {
+						if (e.key === 'Enter' && !e.shiftKey) {
+							e.preventDefault();
+							send();
+						}
+					}}
+				></textarea>
 				<button class="input-group-cell" aria-label="Emoji">
 					<SmileIcon class="size-4" />
 				</button>
