@@ -1,0 +1,17 @@
+version: "2"
+
+linters:
+  exclusions:
+    # Template scaffolds: registry/wiring helpers that have no callers
+    # in the template itself but exist so contributors can extend each
+    # subsystem by adding a single file. Drop the matching rule once a
+    # symbol is referenced naturally.
+    rules:
+      - path: 'internal/disgo/commands/allcommands\.go'
+        linters: [unused]
+      - path: 'internal/pocketbase/hooks/allhooks\.go'
+        linters: [unused]
+      - path: 'internal/pocketbase/schema/allschema\.go'
+        linters: [unused]
+      - path: 'internal/pocketbase/routes/middleware/init\.go'
+        linters: [unused]
