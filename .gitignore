@@ -5,6 +5,14 @@ vendor/
 /server
 /server.exe
 
+# Go test / coverage / profile artifacts
+*.test
+coverage.out
+coverage.html
+coverage.txt
+*.prof
+*.pprof
+
 # Task
 .task/
 
@@ -20,6 +28,20 @@ sveltekit/.svelte-kit/
 .env
 !.env.example
 !sveltekit/.env.example
+
+# Local-only reference / legacy material (see docs/README.md)
+/reference/
+
+# Logs
+*.log
+
+# Editor backups
+*~
+*.bak
+
+# Claude Code (committed: .claude/settings.json + .claude/commands/)
+.claude/settings.local.json
+.claude/.credentials.json
 
 # OS
 .DS_Store

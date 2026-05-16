@@ -11,6 +11,18 @@ Before writing or reviewing code that touches a third-party library where the AP
 - **Skeleton UI v4** — [sveltekit/docs/skeleton-llms.txt](sveltekit/docs/skeleton-llms.txt) is a table of contents of Skeleton's official docs (components, theming, Tailwind v4 integration). Read it first to locate the right page, then WebFetch the specific page under `https://www.skeleton.dev/` (e.g. `https://www.skeleton.dev/docs/svelte/framework-components/app-bar.md`, `https://www.skeleton.dev/docs/svelte/tailwind-components/buttons`). Always use the **Svelte** section, not React.
 - **SvelteKit, PocketBase JS SDK, Disgo, Tailwind v4** — WebFetch the official docs site (`kit.svelte.dev`, `pocketbase.io/docs`, `disgo.dev`, `tailwindcss.com`) rather than inventing an API.
 
+## Project meta-docs
+
+[`docs/README.md`](docs/README.md) is the source of truth for the project's meta-docs convention. Follow it when adding planning, status, or decision documents.
+
+- New milestone → copy [`docs/milestones/_template.md`](docs/milestones/_template.md) to `docs/milestones/M??-kebab-name.md`, then add a row to `docs/milestones/README.md`.
+- New decision → copy [`docs/decisions/_template.md`](docs/decisions/_template.md) to `docs/decisions/????-kebab-name.md`, then add a row to `docs/decisions/README.md`. ADRs are immutable once Accepted — supersede with a new ADR rather than editing.
+- Update [`docs/STATUS.md`](docs/STATUS.md) whenever the "Now" set of work changes.
+- Add user-visible changes to `CHANGELOG.md` under `[Unreleased]`; cut a versioned section when shipping (SemVer, Keep-a-Changelog format).
+- Dates are always absolute (`YYYY-MM-DD`). Milestone `Log` sections and the ADR index are append-only.
+
+[`docs/README.md`](docs/README.md) also defines cross-cutting conventions: Conventional Commit messages, TODO/FIXME tagged with the related `M??`/`ADR-????`, the standard Taskfile target lineup (`dev`/`build`/`test`/`fmt`/`lint`/`clean`/`container:*`), `v`-prefixed SemVer tags, and `.env.example` grouping. Versioning is driven from the git tag: `internal/version` exposes `Version`/`Commit`/`Date` set via ldflags in `Taskfile.yml`, surfaced at `/api/version`. See [ADR-0001](docs/decisions/0001-version-from-git-tag.md).
+
 ## Development Commands
 
 ```sh

@@ -88,6 +88,9 @@ A reusable project template combining a Go backend with a SvelteKit frontend.
 │       ├── rooms/             # Room type definitions with guard lists
 │       └── resolvers/         # WS state lookups via Services
 ├── sveltekit/                 # SvelteKit frontend (Skeleton UI v4, adapter-static → pb_public/)
+├── docs/                      # Project meta-docs (status, milestones, decisions, runbook) — see docs/README.md
+├── reference/                 # (gitignored) local-only legacy/reference material — see docs/README.md
+├── CHANGELOG.md               # Keep-a-Changelog, SemVer
 ├── .env.example               # Env template (shared by backend + frontend via envDir)
 ├── .air.toml                  # Go hot reload config
 ├── .gitignore
@@ -97,6 +100,19 @@ A reusable project template combining a Go backend with a SvelteKit frontend.
 ├── go.mod
 └── LICENSE
 ```
+
+## Meta-docs
+
+Planning, status, and architectural decisions live in [`docs/`](docs/README.md), with this shape:
+
+- [`docs/STATUS.md`](docs/STATUS.md) — current state (Goals / Now / Next / Maybe / Out of scope)
+- [`docs/milestones/`](docs/milestones/README.md) — one markdown per milestone (`M??-kebab-name.md`)
+- [`docs/decisions/`](docs/decisions/README.md) — one ADR per decision (`????-kebab-name.md`)
+- [`docs/RUNBOOK.md`](docs/RUNBOOK.md) — operational procedures (deploy, backup, restore, secret rotation)
+- [`CHANGELOG.md`](CHANGELOG.md) — Keep-a-Changelog, SemVer
+- `reference/` — gitignored, local-only legacy/reference material
+
+See [`docs/README.md`](docs/README.md) for the full convention.
 
 ## Prerequisites
 

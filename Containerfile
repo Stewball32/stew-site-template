@@ -5,6 +5,8 @@ WORKDIR /app
 # Vite resolves $env/static/public at build time. The runtime value comes
 # from the orchestrator's .env, so any non-empty default works here.
 ENV PUBLIC_PB_PORT=8090
+ARG VERSION=dev
+ENV PUBLIC_APP_VERSION=${VERSION}
 COPY sveltekit/package.json sveltekit/pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile
 COPY sveltekit/ ./
@@ -12,12 +14,15 @@ RUN pnpm build
 
 # Stage 2: Build Go backend
 FROM golang:1.25-alpine AS backend
+ARG VERSION=dev
+ARG COMMIT=unknown
+ARG DATE=unknown
 WORKDIR /app
 COPY go.mod go.sum ./
 RUN go mod download
 COPY cmd/ ./cmd/
 COPY internal/ ./internal/
-RUN CGO_ENABLED=0 GOOS=linux go build -o /server ./cmd/server
+RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w -X github.com/youruser/yourproject/internal/version.Version=${VERSION} -X github.com/youruser/yourproject/internal/version.Commit=${COMMIT} -X github.com/youruser/yourproject/internal/version.Date=${DATE}" -o /server ./cmd/server
 
 # Stage 3: Runtime
 FROM alpine:latest
