@@ -1,13 +1,13 @@
 # Stage 1: Build SvelteKit frontend
 FROM node:22-alpine AS frontend
-RUN corepack enable && corepack prepare pnpm@latest --activate
+RUN corepack enable && corepack prepare pnpm@10 --activate
 WORKDIR /app
 # Vite resolves $env/static/public at build time. The runtime value comes
 # from the orchestrator's .env, so any non-empty default works here.
 ENV PUBLIC_PB_PORT=8090
 ARG VERSION=dev
 ENV PUBLIC_APP_VERSION=${VERSION}
-COPY sveltekit/package.json sveltekit/pnpm-lock.yaml ./
+COPY sveltekit/package.json sveltekit/pnpm-lock.yaml sveltekit/pnpm-workspace.yaml ./
 RUN pnpm install --frozen-lockfile
 COPY sveltekit/ ./
 RUN pnpm build
