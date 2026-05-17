@@ -61,6 +61,12 @@ task clean
 
 task install:hooks
 
+# Aggregate test / format / lint across Go + frontend
+
+task test
+task fmt
+task lint
+
 # Run server directly (no Task/Air)
 
 go run ./cmd/server serve
@@ -79,7 +85,8 @@ pnpm check          # svelte-check + TypeScript
 pnpm lint           # prettier + eslint
 pnpm format         # prettier --write
 
-# Generate PocketBase TypeScript types (requires running dev server)
+# Generate PocketBase TypeScript types (requires running dev server).
+# Also runs automatically in the background during `task dev:frontend`.
 
 task typegen
 ```
@@ -112,6 +119,8 @@ Protected pages can be served through custom PocketBase routes that validate JWT
 4. Register OnTerminate hook to shut down Disgo bot cleanly
 5. Call `app.Start()` (blocking)
 
+Each system has its own README with deeper per-subdirectory detail — read [`internal/guards/README.md`](internal/guards/README.md), [`internal/pocketbase/README.md`](internal/pocketbase/README.md), [`internal/disgo/README.md`](internal/disgo/README.md), [`internal/websocket/README.md`](internal/websocket/README.md) before modifying that system.
+
 ### Key packages
 
 | Package                                 | Purpose                                                             |
@@ -120,6 +129,7 @@ Protected pages can be served through custom PocketBase routes that validate JWT
 | `internal/guards/interfaces/discord`    | Per-method Discord interfaces (Membership, Roles, Notify, Voice)    |
 | `internal/guards/interfaces/websocket`  | Per-method WS interfaces (Connected, Rooms, Broadcast)              |
 | `internal/guards/interfaces/pocketbase` | Per-method PB interfaces (Users)                                    |
+| `internal/version`                      | Build-time `Version`/`Commit`/`Date` (set via ldflags, surfaced at `/api/version`) — see ADR-0001 |
 | `internal/pocketbase`                   | PB service wrapper — implements `pbiface.Service`                   |
 | `internal/pocketbase/schema`            | Programmatic collection definitions — one file per domain           |
 | `internal/pocketbase/hooks`             | Record event hooks — fire Discord notifications, push to WS clients |
@@ -133,6 +143,7 @@ Protected pages can be served through custom PocketBase routes that validate JWT
 | `internal/websocket/handlers`           | Self-registering WS message handlers — one per file                 |
 | `internal/websocket/rooms`              | Room type definitions with guard lists — one per file               |
 | `internal/websocket/resolvers`          | WS state lookups via Services — one exported function per file      |
+| `internal/websocket/actions`            | Reusable WS Hub operations — one exported function per file         |
 | `internal/disgo`                        | Bot client setup: NewBot(), OpenGateway(), Close(), action methods  |
 | `internal/disgo/commands`               | Slash command definitions and handler functions                     |
 | `internal/disgo/events`                 | Discord gateway event listeners for non-interaction events          |
@@ -206,3 +217,5 @@ Handlers orchestrate by calling resolvers/guards/actions from multiple systems �
 - **Seeding:** Air (`task dev`) builds with `-tags dev`, causing `seed.Run(app)` to execute automatically at server startup using `internal/pocketbase/seed/data.go`. Edit `data.go` to change seed data.
 - **Dev vs prod builds:** `air` (dev) compiles with `-tags dev`; `task build:backend` compiles without it. The `//go:build dev` constraint in `internal/pocketbase/seed/` means the seeder is a no-op in production binaries.
 - **Dev DB is ephemeral:** Air compiles the server to `tmp/server.exe` and `clean_on_exit = true` wipes `tmp/` on exit — including `tmp/pb_data/` where PocketBase stores its dev database. This is intentional: each `task dev` session starts with a clean slate. TypeScript type generation (`task typegen`) therefore uses `--url` mode against the live server rather than reading the DB file directly.
+- **`.go.example` scaffolding:** files like `internal/guards/guard.go.example` and `internal/pocketbase/routes/admin/routes.go.example` are templates — copy and rename to `.go` to add a new guard or admin route. The `.example` suffix keeps them out of the build.
+- **pnpm pinned to v10:** both `Containerfile` (`corepack prepare pnpm@10`) and `.github/workflows/ci.yml` (`pnpm/action-setup` `version: 10`). Don't bump to `latest` — pnpm v11 raises `ERR_PNPM_IGNORED_BUILDS` during `--frozen-lockfile` installs even when packages are listed in `onlyBuiltDependencies`. The dep build-script allowlist is authoritative in `sveltekit/pnpm-workspace.yaml` (pnpm v10+ ignores a `pnpm` block in `package.json`), and the `Containerfile`'s frontend stage must copy this file into the build context.
