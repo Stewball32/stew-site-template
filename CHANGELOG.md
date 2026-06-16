@@ -11,14 +11,13 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- CI: require pnpm **v11** (was v10) — `Containerfile` (`corepack prepare pnpm@11`) and GitHub Actions (`pnpm/action-setup` `version: 11`); Node 22+ required.
+- CI: migrate the dependency build-script allowlist in `sveltekit/pnpm-workspace.yaml` from v10's `onlyBuiltDependencies` list to v11's `allowBuilds` map (`esbuild: true`, `sqlite3: true`). The `Containerfile` frontend stage still copies the workspace file into the build context. `pnpm-lock.yaml` is unchanged — v11 reads the existing `lockfileVersion: '9.0'` file as-is.
+
 ### Deprecated
 
 ### Removed
 
 ### Fixed
-
-- CI: pin pnpm to v10 in Containerfile and GitHub Actions. pnpm v11 (pulled by `latest`) raises `ERR_PNPM_IGNORED_BUILDS` during `--frozen-lockfile` installs even when packages are listed in `onlyBuiltDependencies`.
-- CI: consolidate dependency build-script approvals in `sveltekit/pnpm-workspace.yaml` (esbuild + sqlite3) and remove the now-redundant `pnpm.onlyBuiltDependencies` block from `package.json`. pnpm v10+ treats the workspace file as authoritative.
-- CI: copy `pnpm-workspace.yaml` into the container build context so the approval list is visible during the frontend stage.
 
 ### Security
