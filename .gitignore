@@ -24,9 +24,14 @@ pb_public/
 sveltekit/node_modules/
 sveltekit/.svelte-kit/
 
-# Environment
+# Environment — per-tier env files hold secrets; only the *.example templates
+# are committed.
 .env
+.env.pre
+.env.dev
 !.env.example
+!.env.pre.example
+!.env.dev.example
 !sveltekit/.env.example
 
 # Local-only reference / legacy material (see docs/README.md)

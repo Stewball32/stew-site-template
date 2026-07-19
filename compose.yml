@@ -1,12 +1,33 @@
+# PROD tier — the live site.
+#
+# Standard tier layout (see docs/DEPLOYMENTS.md):
+#   prod  compose.yml      .env      ./deploy-prod.sh   PROD_PB_PORT
+#   test  compose.pre.yml  .env.pre  ./deploy-pre.sh    PRE_PB_PORT
+#   dev   (no container)   .env.dev  ./run-dev.sh       DEV_PB_PORT / DEV_VITE_PORT
+#
+# Host ports come from this project's block in PORTS.md. The container always
+# listens on 8090 INTERNALLY (Containerfile CMD); only the published host port
+# differs per tier, so the image is identical across tiers.
+#
+#   Deploy : ./deploy-prod.sh     (guards branch + clean tree, builds, health-checks)
+#   Logs   : docker compose logs -f
+#   Stop   : docker compose down  (add -v to DESTROY the database)
+name: yourproject
+
 services:
   app:
     build:
       context: .
       dockerfile: Containerfile
+    container_name: yourproject
+    # Loopback only — fronted by the cloudflared tunnel (see deploy/). Never
+    # publish straight to the LAN/WAN.
     ports:
-      - "${PUBLIC_PB_PORT:-8090}:8090"
+      - "127.0.0.1:${PROD_PB_PORT:-8090}:8090"
+    # Named volume: the PocketBase database (and migrations' _migrations table).
+    # Survives container recreate — only `down -v` destroys it.
     volumes:
-      - pb_data:/app/pb_data:z
+      - pb_data:/app/pb_data
     env_file:
       - .env
     restart: unless-stopped
