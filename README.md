@@ -125,16 +125,29 @@ See [`docs/README.md`](docs/README.md) for the full convention.
 
 ## Quick Start
 
-1. **Clone and rename the module:**
+1. **Clone and scaffold.** `scaffold-site.sh` renames the module/image _and_
+   assigns the project's port block, hostnames, and per-tier config, so the new
+   site is standard-compliant from creation. **Claim a port block in
+   [PORTS.md](PORTS.md) first.**
 
    ```bash
    git clone https://github.com/Stewball32/stew-site-template.git my-project
    cd my-project
-   ./scripts/rename-module.sh github.com/you/yourapp
+   ./scripts/scaffold-site.sh \
+     --module github.com/you/yourapp \
+     --port-base 8130 \
+     --prod-host yourapp.example \
+     --tunnel your-tunnel
    go mod tidy
    ```
 
-   The script rewrites `go.mod`, all Go imports, and the container image name in `Taskfile.yml`. The image name defaults to the basename of the module path; pass a second argument to override.
+   It rewrites `go.mod` + imports + the image/compose project names, sets the
+   tier ports (prod `base+0`, test `base+1`, dev-backend `base+2`, dev-vite
+   `base+3`), fills the cloudflared ingress snippet and `docs/DEPLOYMENTS.md`,
+   and creates `.env` / `.env.pre` / `.env.dev` with blank secrets so the project
+   builds immediately. Add `--dry-run` to preview.
+
+   (`scripts/rename-module.sh` remains for a rename-only change.)
 
 2. **Configure environment:**
 
@@ -161,20 +174,40 @@ See [`docs/README.md`](docs/README.md) for the full convention.
    ./bin/server serve
    ```
 
-## Containers
+## Deployment — three tiers
+
+One interface per tier; ports come from this project's block in [PORTS.md](PORTS.md).
+Full runbook: **[docs/DEPLOYMENTS.md](docs/DEPLOYMENTS.md)**.
+
+| Tier | Command | Compose | Env |
+| --- | --- | --- | --- |
+| **dev** | `./run-dev.sh` | — (working tree, Air + Vite HMR) | `.env.dev` |
+| **test** | `./deploy-pre.sh` | `compose.pre.yml` | `.env.pre` |
+| **prod** | `./deploy-prod.sh` | `compose.yml` | `.env` |
+
+Both deploy scripts do the same thing: refuse to run on the wrong branch or a
+dirty tree → build → recreate the stack → apply pending migrations on boot →
+poll `/api/health` and fail loudly if it never comes up. `down` and `logs`
+subcommands on each; `ALLOW_DIRTY=1` / `ALLOW_ANY_BRANCH=1` to override a guard.
+
+Every tier binds **loopback only** and is fronted by cloudflared — fill in
+[`deploy/cloudflared-ingress.snippet.yml`](deploy/cloudflared-ingress.snippet.yml)
+(the scaffold does this for you) and merge it into the tunnel config.
+
+## Database migrations
+
+Collections are defined by **migrations** (`migrations/`), not by on-serve schema
+code — see **[docs/MIGRATIONS.md](docs/MIGRATIONS.md)**. Automigrate is ON in dev
+builds only: change the schema in the dev admin UI, a migration file is written,
+you review and commit it, and test/prod apply it on boot (tracked in
+`_migrations`). Prove schema changes on the test tier against a copy of prod
+`pb_data` before prod.
 
 ```bash
-
-# Build image
-
-task container:build
-
-# Run (PUBLIC_PB_PORT defaults to 8090, set in .env)
-
-task container:run
+task migrate:up                      # apply pending
+task migrate:create -- add_widgets   # new blank migration
+task migrate:collections             # snapshot current collections
 ```
-
-For multiple instances on the same machine, set a unique `PUBLIC_PB_PORT` in each project's `.env`. Route traffic with cloudflared or a reverse proxy.
 
 ## Production deployment
 

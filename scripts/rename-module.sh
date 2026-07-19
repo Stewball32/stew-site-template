@@ -34,13 +34,21 @@ go mod edit -module="$NEW_MODULE"
 
 # Files that legitimately reference the placeholder. Keep the list explicit
 # rather than scanning everything: avoids touching pb_data, lockfiles, etc.
+# NOTE: *.go.example are the copy-me scaffolding templates — they carry the
+# module path in their imports, so they must be renamed too or the first file
+# you copy won't compile. compose*.yml catches compose.pre.yml (test tier).
+# The scripts/ helpers are skipped: they need the placeholder strings to work.
 mapfile -t TARGETS < <(grep -rl --null \
     --include='*.go' \
+    --include='*.go.example' \
+    --include='*.svelte' \
     --include='Taskfile.yml' \
     --include='Containerfile' \
-    --include='compose.yml' \
+    --include='compose*.yml' \
     --include='*.md' \
-    -e "$OLD_MODULE" -e "\b$OLD_IMAGE\b" . | tr '\0' '\n' | grep -v '^./scripts/rename-module.sh$' || true)
+    -e "$OLD_MODULE" -e "\b$OLD_IMAGE\b" . | tr '\0' '\n' \
+    | grep -v '^./scripts/rename-module.sh$' \
+    | grep -v '^./scripts/scaffold-site.sh$' || true)
 
 for f in "${TARGETS[@]}"; do
     [[ -z "$f" ]] && continue
