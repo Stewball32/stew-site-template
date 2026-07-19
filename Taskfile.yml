@@ -31,6 +31,27 @@ tasks:
     dir: sveltekit
     cmds: ["pnpm typegen"]
 
+  # ── Migrations (schema source of truth — see docs/MIGRATIONS.md) ────────────
+  migrate:
+    desc: Apply pending migrations (alias of migrate:up)
+    cmds: [{ task: "migrate:up" }]
+
+  migrate:up:
+    desc: Apply pending migrations. Test/prod also do this automatically on boot.
+    cmds: ["go run ./cmd/server migrate up"]
+
+  migrate:create:
+    desc: 'Create a blank migration: task migrate:create -- add_widgets'
+    cmds: ["go run ./cmd/server migrate create {{.CLI_ARGS}}"]
+
+  migrate:collections:
+    desc: Snapshot current collections into a migration (baseline / re-sync)
+    cmds: ["go run ./cmd/server migrate collections"]
+
+  migrate:down:
+    desc: Revert the last applied migration (DEV ONLY — destructive)
+    cmds: ["go run ./cmd/server migrate down"]
+
   build:
     desc: Build production binary with static frontend
     cmds:

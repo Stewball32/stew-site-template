@@ -8,11 +8,12 @@ import (
 
 	"github.com/pocketbase/pocketbase"
 	"github.com/pocketbase/pocketbase/core"
+	"github.com/pocketbase/pocketbase/plugins/migratecmd"
 	"github.com/youruser/yourproject/internal/guards"
 	"github.com/youruser/yourproject/internal/pocketbase/hooks"
+	"github.com/youruser/yourproject/internal/pocketbase/migrateconf"
 	"github.com/youruser/yourproject/internal/pocketbase/oauth"
 	"github.com/youruser/yourproject/internal/pocketbase/routes"
-	"github.com/youruser/yourproject/internal/pocketbase/schema"
 	"github.com/youruser/yourproject/internal/pocketbase/seed"
 	ws "github.com/youruser/yourproject/internal/websocket"
 
@@ -21,6 +22,7 @@ import (
 	pb "github.com/youruser/yourproject/internal/pocketbase"
 	_ "github.com/youruser/yourproject/internal/websocket/handlers" // self-registering WS handlers
 	_ "github.com/youruser/yourproject/internal/websocket/rooms"    // self-registering WS room types
+	_ "github.com/youruser/yourproject/migrations"                  // self-registering DB migrations
 )
 
 func main() {
@@ -30,6 +32,17 @@ func main() {
 
 	app := pocketbase.New()
 
+	// Database migrations are the SOURCE OF TRUTH for schema (docs/MIGRATIONS.md).
+	// Pending migrations in migrations/ are applied automatically on boot, tracked
+	// in the _migrations table. Automigrate writes a migration file whenever the
+	// schema changes — enabled in dev builds only, so test/prod can only ever
+	// APPLY reviewed migrations, never author new ones from a live admin edit.
+	migratecmd.MustRegister(app, app.RootCmd, migratecmd.Config{
+		Dir:          "migrations",
+		Automigrate:  migrateconf.Automigrate,
+		TemplateLang: migratecmd.TemplateLangGo,
+	})
+
 	var bot *discordbot.Bot
 	var hub *ws.Hub
 
@@ -38,10 +51,8 @@ func main() {
 
 	// OnServe: register schemas and routes (needs running DB / ServeEvent).
 	app.OnServe().BindFunc(func(se *core.ServeEvent) error {
-		if err := schema.RegisterAll(app); err != nil {
-			return err
-		}
-
+		// NOTE: collections are created by MIGRATIONS (migrations/), applied on
+		// boot before this hook — not by on-serve schema code. See docs/MIGRATIONS.md.
 		if err := oauth.RegisterAll(app); err != nil {
 			return err
 		}
