@@ -58,3 +58,6 @@ Thumbs.db
 .idea/
 *.swp
 *.swo
+
+# Squash workflow: archived granular migrations (see docs/MIGRATIONS.md)
+.migrate-archive/

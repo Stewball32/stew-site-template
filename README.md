@@ -203,10 +203,17 @@ you review and commit it, and test/prod apply it on boot (tracked in
 `_migrations`). Prove schema changes on the test tier against a copy of prod
 `pb_data` before prod.
 
+The history is **granular in dev, squashed on release**: dev/test branches carry
+many small migrations, and on approval they're collapsed into a single release
+migration on the way to `main` — so prod's `_migrations` reads like a version log.
+
 ```bash
-task migrate:up                      # apply pending
-task migrate:create -- add_widgets   # new blank migration
-task migrate:collections             # snapshot current collections
+task migrate:up                        # apply pending
+task migrate:create -- add_widgets     # new blank migration
+
+# on approval, heading to main:
+task migrate:squash -- --version v0.3.0            # granular ──► one release file
+task migrate:verify -- --from /tmp/prod-pb_data    # prove it matches, THEN merge
 ```
 
 ## Production deployment

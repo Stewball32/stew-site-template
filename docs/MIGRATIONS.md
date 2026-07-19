@@ -26,10 +26,36 @@ history that every tier applies identically.
 - Pending migrations run **before** `OnServe`, so routes/hooks can assume the
   schema exists.
 
+## The model: granular in dev, squashed on release
+
+Two different needs, so two different shapes of history:
+
+| | dev / test branches | `main` → prod |
+| --- | --- | --- |
+| Migrations | **many small files**, one per change | **one file per approved release** |
+| History | messy and iterative — expected | a clean version log |
+| Source | Automigrate + `migrate create` | `migrate:squash` |
+
+**Branch discipline:** the granular churn lives on dev/test branches only. `main`
+carries nothing but squashed release migrations. **The squash happens on the way
+to main** — never merge granular files into it.
+
+So prod's `_migrations` table reads like a release history:
+
+```
+1784482228_collections_snapshot.go   ← baseline
+1784483479_release_v0_3_0.go         ← everything approved in v0.3.0, as one file
+1784490000_release_v0_4_0.go         ← …v0.4.0
+```
+
 ## Workflow
 
 ```
-dev (Automigrate) ──► commit migration file ──► test applies on boot ──► prod applies on boot
+dev (Automigrate, many small files)
+  └─► test applies them on boot          ← iterate freely here
+        └─► APPROVED → task migrate:squash   (granular ──► one release migration)
+              └─► task migrate:verify        (proves squashed ≡ granular)
+                    └─► merge to main ──► prod applies ONE clean migration
 ```
 
 1. **Author in dev.** `task dev`, then edit collections in the admin UI
@@ -43,19 +69,66 @@ dev (Automigrate) ──► commit migration file ──► test applies on boot
    `pb_data`** (see below) and confirm the app boots and behaves.
 5. **Deploy prod.** It applies the same pending migrations on boot.
 
-### Proving a migration against real data (do this before prod)
+### Squashing for a release
+
+When the branch is approved, collapse its granular migrations into one release
+migration and prove the collapse is faithful:
+
+```sh
+# 1. squash — applies every current migration to a throwaway DB, snapshots the
+#    resulting schema as ONE release file, archives the granular ones
+task migrate:squash -- --version v0.3.0
+
+# 2. verify — THIS IS THE PROVE-BEFORE-PROD CHECK. Run it against a COPY of
+#    prod's pb_data so you verify the exact upgrade path prod will take.
+task migrate:verify -- --from /tmp/prod-pb_data-copy
+
+# 3. only if verify passes:
+git add -A && git commit -m "chore(release): squash migrations for v0.3.0"
+```
+
+**What verify actually does.** From the *same* starting database it builds two
+independent trees and compares the end schemas byte-for-byte:
+
+- **A (granular)** — starting data + release-line files + the archived granular files
+- **B (squashed)** — starting data + release-line files + the new release migration
+
+Identical → the squash is equivalent and safe to merge. Different → it prints the
+diff and refuses (exit 1).
+
+> **The one case that legitimately fails:** if the release **deletes** a
+> collection. A generated snapshot imports with `deleteMissing=false`, so it
+> creates and updates but never removes — the squashed schema keeps the deleted
+> collection and verify catches the divergence. Re-run the squash with
+> `--delete-missing` to make the release migration authoritative (it will drop
+> collections absent from the snapshot — destructive, so it is opt-in), then
+> verify again.
+
+### Getting a copy of prod's data
 
 Never let prod be the first place a migration meets real data.
 
 ```sh
-# snapshot prod's volume into the test tier's volume, then deploy test
+# copy prod's volume into the test tier's volume, then deploy test
 docker run --rm -v <proj>_pb_data:/from -v <proj>-pre_pb_data_pre:/to alpine \
   sh -c 'rm -rf /to/* && cp -a /from/. /to/'
 ./deploy-pre.sh          # boots test on the copy → migrations apply there first
+
+# or extract it to a directory for `migrate:verify --from`
+docker run --rm -v <proj>_pb_data:/from -v /tmp:/out alpine \
+  sh -c 'rm -rf /out/prod-pb_data-copy && cp -a /from /out/prod-pb_data-copy'
 ```
 
 Check the logs for migration errors and hit `/api/health`. If it goes wrong you
 throw the copy away; prod was never touched.
+
+### Why a snapshot, not a hand-written diff
+
+The release migration is a full collections snapshot rather than a computed
+"diff since last release". PocketBase generates snapshots reliably, and applying
+one reproduces the exact end state whatever path got you there — which is the
+property that matters. `migrate:verify` is what turns that into a guarantee
+rather than an assumption.
 
 ## Commands
 
@@ -65,12 +138,31 @@ throw the copy away; prod was never touched.
 | `task migrate:create -- <name>` | New blank migration |
 | `task migrate:collections` | Snapshot current collections into a migration (baseline / re-sync) |
 | `task migrate:down` | Revert the last migration — **dev only, destructive** |
+| `task migrate:squash -- --version vX.Y.Z` | Collapse this branch's granular migrations into one release migration |
+| `task migrate:verify -- --from <pb_data>` | Prove the squash produces the identical schema — **run before merging** |
+
+Migration files are classified by filename:
+
+- **release-line** — `*_collections_snapshot.go` (the baseline) and `*_release_*.go`.
+  These are what `main`/prod carry.
+- **granular** — everything else in `migrations/`. Dev/test only; squashed away
+  before merge.
+
+`migrate:squash` archives the granular files to `.migrate-archive/<version>/`
+(gitignored) so `migrate:verify` can rebuild the "before" side to compare against.
 
 ## Rules
 
 - **Never edit an applied migration.** It's already recorded in `_migrations` on
   some tier. Add a new migration instead.
 - **Never hand-write into `_migrations`.**
+- **Never merge granular migrations to `main`.** Squash first — that's the whole
+  point of the release-migration history.
+- **Never merge a squash that hasn't passed `migrate:verify`.**
+- **Squashing is only safe because prod never applied the granular files.** They
+  exist solely on dev/test branches, so replacing them with one release migration
+  loses nothing prod knew about. (Test tiers that *did* apply them are rebuilt
+  from a prod copy anyway.)
 - **One logical change per migration**, named for what it does.
 - **Migrations must be idempotent-safe to re-run in sequence** on a fresh DB —
   that's the guarantee that a new environment can be built from scratch.

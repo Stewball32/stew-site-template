@@ -52,6 +52,14 @@ tasks:
     desc: Revert the last applied migration (DEV ONLY — destructive)
     cmds: ["go run ./cmd/server migrate down"]
 
+  migrate:squash:
+    desc: 'Squash this branch''s granular migrations into one release migration: task migrate:squash -- --version v0.3.0'
+    cmds: ["./scripts/migrate-squash.sh {{.CLI_ARGS}}"]
+
+  migrate:verify:
+    desc: 'Prove the squash == the granular set (run before merging): task migrate:verify -- --from /path/to/prod-pb_data-copy'
+    cmds: ["./scripts/migrate-verify.sh {{.CLI_ARGS}}"]
+
   build:
     desc: Build production binary with static frontend
     cmds:
