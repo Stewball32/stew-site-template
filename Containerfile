@@ -22,6 +22,9 @@ COPY go.mod go.sum ./
 RUN go mod download
 COPY cmd/ ./cmd/
 COPY internal/ ./internal/
+# Migrations are compiled into the binary (main.go blank-imports this package)
+# and define the schema — the build fails without them. See docs/MIGRATIONS.md.
+COPY migrations/ ./migrations/
 RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w -X github.com/youruser/yourproject/internal/version.Version=${VERSION} -X github.com/youruser/yourproject/internal/version.Commit=${COMMIT} -X github.com/youruser/yourproject/internal/version.Date=${DATE}" -o /server ./cmd/server
 
 # Stage 3: Runtime
