@@ -55,14 +55,14 @@
 							</div>
 							<a
 								href={resolve('/profile/')}
-								class="rounded-token mt-1 flex items-center gap-2 px-3 py-2 hover:preset-tonal"
+								class="rounded-base mt-1 flex items-center gap-2 px-3 py-2 hover:preset-tonal"
 							>
 								<UserIcon class="size-4" />
 								<span class="text-sm">Profile</span>
 							</a>
 							<button
 								type="button"
-								class="rounded-token flex w-full items-center gap-2 px-3 py-2 text-left hover:preset-tonal"
+								class="rounded-base flex w-full items-center gap-2 px-3 py-2 text-left hover:preset-tonal"
 								onclick={() => auth.logout()}
 							>
 								<LogOutIcon class="size-4" />

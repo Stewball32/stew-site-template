@@ -142,7 +142,7 @@
 					{@const meta = kindMeta[notif.kind]}
 					{@const Icon = meta.icon}
 					<div
-						class="group flex items-start gap-4 card p-4 card-hover {notif.read
+						class="group flex items-start gap-4 card p-4 {notif.read
 							? 'opacity-70'
 							: ''}"
 					>

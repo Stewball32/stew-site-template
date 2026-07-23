@@ -127,8 +127,8 @@
 	<!-- Conversation list -->
 	<aside class="flex flex-col border-r border-surface-200-800">
 		<div class="border-b border-surface-200-800 p-4">
-			<div class="input-group grid-cols-[auto_1fr]">
-				<div class="input-group-cell">
+			<div class="field-group grid-cols-[auto_1fr]">
+				<div class="field-group-cell">
 					<SearchIcon class="size-4" />
 				</div>
 				<input type="search" placeholder="Search..." />
@@ -207,8 +207,8 @@
 		</div>
 
 		<footer class="border-t border-surface-200-800 p-4">
-			<div class="input-group grid-cols-[auto_1fr_auto_auto]">
-				<button class="input-group-cell" aria-label="Attach">
+			<div class="field-group grid-cols-[auto_1fr_auto_auto]">
+				<button class="field-group-cell" aria-label="Attach">
 					<PaperclipIcon class="size-4" />
 				</button>
 				<textarea
@@ -222,7 +222,7 @@
 						}
 					}}
 				></textarea>
-				<button class="input-group-cell" aria-label="Emoji">
+				<button class="field-group-cell" aria-label="Emoji">
 					<SmileIcon class="size-4" />
 				</button>
 				<button class="btn preset-filled" onclick={send} aria-label="Send">

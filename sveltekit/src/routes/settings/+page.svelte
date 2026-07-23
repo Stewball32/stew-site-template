@@ -258,17 +258,17 @@
 					<!-- Input Groups -->
 					<label class="label">
 						<span>Display Name</span>
-						<div class="input-group grid-cols-[auto_1fr_auto]">
-							<div class="ig-cell"><UserIcon class="size-4" /></div>
-							<input type="text" class="ig-input" bind:value={displayName} />
+						<div class="field-group grid-cols-[auto_1fr_auto]">
+							<div class="flex items-center justify-center px-3 preset-tonal"><UserIcon class="size-4" /></div>
+							<input type="text" class="input" bind:value={displayName} />
 						</div>
 					</label>
 
 					<label class="label">
 						<span>Email</span>
-						<div class="input-group grid-cols-[auto_1fr_auto]">
-							<div class="ig-cell"><MailIcon class="size-4" /></div>
-							<input type="email" class="ig-input" bind:value={email} />
+						<div class="field-group grid-cols-[auto_1fr_auto]">
+							<div class="flex items-center justify-center px-3 preset-tonal"><MailIcon class="size-4" /></div>
+							<input type="email" class="input" bind:value={email} />
 						</div>
 					</label>
 
@@ -285,11 +285,11 @@
 
 					<label class="label">
 						<span>Location</span>
-						<div class="input-group grid-cols-[auto_1fr_auto]">
-							<div class="ig-cell"><MapPinIcon class="size-4" /></div>
+						<div class="field-group grid-cols-[auto_1fr_auto]">
+							<div class="flex items-center justify-center px-3 preset-tonal"><MapPinIcon class="size-4" /></div>
 							<input
 								type="text"
-								class="ig-input"
+								class="input"
 								bind:value={location}
 								maxlength="100"
 								placeholder="City, Country"
@@ -327,11 +327,11 @@
 
 					<label class="label">
 						<span>Current Password</span>
-						<div class="input-group grid-cols-[auto_1fr_auto]">
-							<div class="ig-cell"><LockIcon class="size-4" /></div>
+						<div class="field-group grid-cols-[auto_1fr_auto]">
+							<div class="flex items-center justify-center px-3 preset-tonal"><LockIcon class="size-4" /></div>
 							<input
 								type="password"
-								class="ig-input"
+								class="input"
 								placeholder="••••••••"
 								bind:value={oldPassword}
 								required
@@ -341,11 +341,11 @@
 
 					<label class="label">
 						<span>New Password</span>
-						<div class="input-group grid-cols-[auto_1fr_auto]">
-							<div class="ig-cell"><LockIcon class="size-4" /></div>
+						<div class="field-group grid-cols-[auto_1fr_auto]">
+							<div class="flex items-center justify-center px-3 preset-tonal"><LockIcon class="size-4" /></div>
 							<input
 								type="password"
-								class="ig-input"
+								class="input"
 								placeholder="••••••••"
 								bind:value={newPassword}
 								minlength="8"
@@ -356,11 +356,11 @@
 
 					<label class="label">
 						<span>Confirm New Password</span>
-						<div class="input-group grid-cols-[auto_1fr_auto]">
-							<div class="ig-cell"><LockIcon class="size-4" /></div>
+						<div class="field-group grid-cols-[auto_1fr_auto]">
+							<div class="flex items-center justify-center px-3 preset-tonal"><LockIcon class="size-4" /></div>
 							<input
 								type="password"
-								class="ig-input"
+								class="input"
 								placeholder="••••••••"
 								bind:value={newPasswordConfirm}
 								minlength="8"

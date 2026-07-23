@@ -176,7 +176,7 @@
 
 			<div class="flex flex-col gap-3">
 				{#each column.cards as card (card.id)}
-					<div class="space-y-3 card p-4 card-hover">
+					<div class="space-y-3 card p-4">
 						<div class="flex flex-wrap gap-1">
 							{#each card.tags as tag (tag.label)}
 								<span class="badge {tag.preset} text-[10px]">{tag.label}</span>

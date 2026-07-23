@@ -112,8 +112,8 @@
 		<h1 class="h2">Data Table</h1>
 		<p class="text-sm opacity-70">Sortable, searchable, paginated user list.</p>
 	</div>
-	<div class="input-group flex max-w-sm grid-cols-[auto_1fr] items-center gap-2">
-		<div class="input-group-cell">
+	<div class="field-group flex max-w-sm grid-cols-[auto_1fr] items-center gap-2">
+		<div class="field-group-cell">
 			<SearchIcon class="size-4" />
 		</div>
 		<input

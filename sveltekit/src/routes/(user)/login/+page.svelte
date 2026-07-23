@@ -89,11 +89,11 @@
 			<form class="space-y-4" onsubmit={handleLogin}>
 				<label class="label">
 					<span>Email</span>
-					<div class="input-group grid-cols-[auto_1fr_auto]">
-						<div class="ig-cell"><MailIcon class="size-4" /></div>
+					<div class="field-group grid-cols-[auto_1fr_auto]">
+						<div class="flex items-center justify-center px-3 preset-tonal"><MailIcon class="size-4" /></div>
 						<input
 							type="email"
-							class="ig-input"
+							class="input"
 							placeholder="you@example.com"
 							bind:value={email}
 							required
@@ -103,11 +103,11 @@
 
 				<label class="label">
 					<span>Password</span>
-					<div class="input-group grid-cols-[auto_1fr_auto]">
-						<div class="ig-cell"><LockIcon class="size-4" /></div>
+					<div class="field-group grid-cols-[auto_1fr_auto]">
+						<div class="flex items-center justify-center px-3 preset-tonal"><LockIcon class="size-4" /></div>
 						<input
 							type="password"
-							class="ig-input"
+							class="input"
 							placeholder="••••••••"
 							bind:value={password}
 							required
