@@ -66,9 +66,12 @@ compose_deploy() {
   "${compose[@]}" build
 
   say "── deploying ${label} ────────────────────────────────────"
-  # `up -d` (not restart): recreates the container so a changed env_file is
-  # actually re-read. Migrations apply on boot.
-  "${compose[@]}" up -d
+  # `up -d --force-recreate`: always bounce the container, even when the image
+  # and config are byte-identical (unchanged code). Without --force-recreate an
+  # unchanged rebuild is a no-op — the old process keeps running and the on-boot
+  # startup reconcile (Discord scheduled-events sync, migrations) never re-fires.
+  # Recreate also guarantees a changed env_file is re-read. Migrations apply on boot.
+  "${compose[@]}" up -d --force-recreate
 
   "${compose[@]}" ps
   wait_healthy "$label" "$port" "${compose[@]}"
