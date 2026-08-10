@@ -66,7 +66,7 @@
 <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
 	{#each filtered as photo (photo.id)}
 		<Dialog>
-			<Dialog.Trigger class="group block overflow-hidden card rounded-lg p-0 text-left card-hover">
+			<Dialog.Trigger class="group block overflow-hidden card rounded-lg p-0 text-left">
 				<div class="aspect-square overflow-hidden">
 					<img
 						src={photo.src}
@@ -88,7 +88,7 @@
 						<div class="relative">
 							<img src={photo.src} alt={photo.title} class="w-full object-contain" />
 							<Dialog.CloseTrigger
-								class="absolute top-3 right-3 btn-icon btn-icon-sm preset-filled"
+								class="absolute top-3 right-3 btn-icon preset-filled btn-icon-sm"
 								aria-label="Close"
 							>
 								<XIcon class="size-4" />

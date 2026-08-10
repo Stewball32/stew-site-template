@@ -21,7 +21,7 @@
 					color-mix(in oklch, var(--color-tertiary-500) 10%, transparent) 0%,
 					transparent 50%
 				),
-				var(--body-background-color-dark);
+				var(--color-root-bg-dark);
 		}
 	}
 }

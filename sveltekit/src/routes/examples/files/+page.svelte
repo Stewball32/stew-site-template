@@ -163,7 +163,7 @@
 							<td class="hidden text-sm opacity-70 sm:table-cell">{file.size}</td>
 							<td class="hidden text-sm opacity-70 md:table-cell">{file.modified}</td>
 							<td class="text-right">
-								<button class="btn-icon btn-icon-sm preset-tonal" aria-label="Download">
+								<button class="btn-icon preset-tonal btn-icon-sm" aria-label="Download">
 									<DownloadIcon class="size-4" />
 								</button>
 							</td>

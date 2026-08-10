@@ -151,7 +151,7 @@
 		{:else}
 			<div class="space-y-3">
 				{#each selectedEvents as event (event.title + event.time)}
-					<div class="flex items-start gap-3 card p-3 card-hover">
+					<div class="flex items-start gap-3 card p-3">
 						<span class="mt-1 size-3 rounded-full {event.preset}"></span>
 						<div class="flex-1">
 							<p class="text-sm font-semibold">{event.title}</p>

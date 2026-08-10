@@ -169,14 +169,14 @@
 					<h2 class="h5">{column.title}</h2>
 					<span class="badge preset-tonal-surface text-xs">{column.cards.length}</span>
 				</div>
-				<button class="btn-icon btn-icon-sm preset-tonal" aria-label="More">
+				<button class="btn-icon preset-tonal btn-icon-sm" aria-label="More">
 					<MoreHorizontalIcon class="size-4" />
 				</button>
 			</div>
 
 			<div class="flex flex-col gap-3">
 				{#each column.cards as card (card.id)}
-					<div class="space-y-3 card p-4 card-hover">
+					<div class="space-y-3 card p-4">
 						<div class="flex flex-wrap gap-1">
 							{#each card.tags as tag (tag.label)}
 								<span class="badge {tag.preset} text-[10px]">{tag.label}</span>

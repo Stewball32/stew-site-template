@@ -260,7 +260,7 @@
 <!-- Stat Cards -->
 <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
 	{#each stats as stat (stat.label)}
-		<div class="space-y-3 card p-6 card-hover">
+		<div class="space-y-3 card p-6">
 			<div class="flex items-center justify-between">
 				<div class="flex items-center gap-3">
 					<stat.icon class="size-8 text-{stat.color}-500" />
@@ -324,7 +324,7 @@
 		<h2 class="h4">Quick Actions</h2>
 		<div class="space-y-3">
 			{#each quickActions as action (action.title)}
-				<div class="card p-4 card-hover">
+				<div class="card p-4">
 					<div class="flex items-center gap-4">
 						<div class="flex items-center justify-center rounded-full bg-surface-200-800 p-2">
 							<action.icon class="size-5 text-primary-500" />

@@ -135,8 +135,8 @@
 </div>
 
 <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center">
-	<div class="input-group max-w-sm grid-cols-[auto_1fr]">
-		<div class="input-group-cell">
+	<div class="field-group max-w-sm grid-cols-[auto_1fr]">
+		<div class="field-group-cell">
 			<SearchIcon class="size-4" />
 		</div>
 		<input type="search" placeholder="Search by name or role..." bind:value={query} />
@@ -157,7 +157,7 @@
 
 <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
 	{#each filtered as member (member.id)}
-		<div class="space-y-4 card p-6 card-hover">
+		<div class="space-y-4 card p-6">
 			<div class="flex items-start gap-4">
 				<div class="relative">
 					<Avatar class="size-14">
@@ -184,7 +184,7 @@
 					<MessageSquareIcon class="size-4" />
 					<span>Message</span>
 				</button>
-				<button class="btn-icon btn-icon-sm preset-tonal" aria-label="Email {member.email}">
+				<button class="btn-icon preset-tonal btn-icon-sm" aria-label="Email {member.email}">
 					<MailIcon class="size-4" />
 				</button>
 			</div>

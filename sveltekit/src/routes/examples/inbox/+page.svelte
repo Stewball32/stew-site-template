@@ -141,11 +141,7 @@
 				{#each filtered as notif (notif.id)}
 					{@const meta = kindMeta[notif.kind]}
 					{@const Icon = meta.icon}
-					<div
-						class="group flex items-start gap-4 card p-4 card-hover {notif.read
-							? 'opacity-70'
-							: ''}"
-					>
+					<div class="group flex items-start gap-4 card p-4 {notif.read ? 'opacity-70' : ''}">
 						<div class="relative shrink-0">
 							<Avatar class="size-10">
 								<Avatar.Image src={notif.avatar} />
@@ -174,14 +170,14 @@
 
 						<div class="flex items-center gap-1 opacity-0 transition group-hover:opacity-100">
 							<button
-								class="btn-icon btn-icon-sm preset-tonal"
+								class="btn-icon preset-tonal btn-icon-sm"
 								onclick={() => toggleRead(notif.id)}
 								aria-label="Toggle read"
 							>
 								<CheckCheckIcon class="size-4" />
 							</button>
 							<button
-								class="btn-icon btn-icon-sm preset-tonal"
+								class="btn-icon preset-tonal btn-icon-sm"
 								onclick={() => remove(notif.id)}
 								aria-label="Delete"
 							>
