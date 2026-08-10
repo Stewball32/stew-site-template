@@ -1,0 +1,28 @@
+# Air config for the DEV tier — used by ./run-dev.sh.
+#
+# Same as .air.toml (used by `task dev`), but points PocketBase's data dir at
+# tmp/dev_pb_data so the dev database is isolated and EPHEMERAL: clean_on_exit
+# wipes tmp/ on shutdown, so every dev session starts from the migrations.
+#
+# Built with `-tags dev`, which turns ON Automigrate (schema changes you make in
+# the admin UI are written to migrations/ for you to review + commit) and the
+# dev seeder.
+root = "."
+tmp_dir = "tmp"
+
+[build]
+  cmd = "go build -tags dev -o ./tmp/dev-server.exe ./cmd/server"
+  entrypoint = "./tmp/dev-server.exe"
+  # --http is injected from PUBLIC_PB_PORT by cmd/server, so only --dir here.
+  args_bin = ["serve", "--dir", "tmp/dev_pb_data"]
+  delay = 1000
+  include_ext = ["go"]
+  include_dir = ["cmd", "internal", "migrations"]
+  exclude_dir = ["tmp", "sveltekit", "pb_data", "pb_public", "vendor"]
+  exclude_regex = ["_test\\.go$"]
+
+[log]
+  time = false
+
+[misc]
+  clean_on_exit = true

@@ -1,0 +1,70 @@
+# Cloudflared ingress snippet — TEMPLATE. Fill the placeholders, then merge the
+# rules into the tunnel's existing /etc/cloudflared/config.yml.
+#
+# ⚠️ DO NOT copy this file over config.yml — it is a fragment. Merge only the
+#    rules into the existing `ingress:` list, ABOVE the catch-all
+#    (`- service: http_status:404`), which must always stay last. Cloudflared
+#    matches rules top-to-bottom.
+#
+# Placeholders:
+#   <PROD_HOST>  <TEST_HOST>  <DEV_HOST>   public hostnames (see naming below)
+#   <PROD_PORT>  <TEST_PORT>  <DEV_PORT>   loopback ports from PORTS.md
+#                                          (DEV_PORT is the VITE port, not the backend)
+#   <TUNNEL>                               cloudflared tunnel name
+#
+# ── Hostname naming: two supported shapes ────────────────────────────────────
+#
+# A) SUBDOMAIN-OF-A-SHARED-APEX — several sites live under one domain.
+#    e.g. norcal-halo-site on norcal.pro:
+#        prod  norcal.pro            test  pre.norcal.pro    dev  lab.norcal.pro
+#    Pattern: prod = apex (or its own subdomain), test/dev = prefixed subdomains.
+#
+# B) OWN-APEX — the site owns its whole domain.
+#    e.g. align-the-day on alignthe.day:
+#        prod  alignthe.day          test  pre.alignthe.day  dev  lab.alignthe.day
+#    Identical rule shape; only the names differ. An apex works via Cloudflare
+#    CNAME flattening — no extra config needed.
+#
+# Prefix convention (keep consistent across all sites): test = `pre.`, dev = `lab.`
+
+  # ── <PROJECT> ───────────────────────────────────────────────────────────────
+  - hostname: <PROD_HOST>
+    service: http://localhost:<PROD_PORT>     # prod  (compose.yml)
+  - hostname: <TEST_HOST>
+    service: http://localhost:<TEST_PORT>     # test  (compose.pre.yml)
+  - hostname: <DEV_HOST>
+    service: http://localhost:<DEV_PORT>      # dev   (Vite HMR, ./run-dev.sh)
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Apply (all sudo — cloudflared config is root-owned):
+#
+#   1. Edit the config, adding the rules above the catch-all:
+#        sudo nano /etc/cloudflared/config.yml
+#
+#   2. Validate, then load:
+#        cloudflared tunnel ingress validate
+#        sudo systemctl restart cloudflared
+#
+#   3. Create the DNS records (once per hostname):
+#        cloudflared tunnel route dns <TUNNEL> <PROD_HOST>
+#        cloudflared tunnel route dns <TUNNEL> <TEST_HOST>
+#        cloudflared tunnel route dns <TUNNEL> <DEV_HOST>
+#      Add --overwrite-dns ONLY to replace a stale record pointing elsewhere:
+#        cloudflared tunnel route dns --overwrite-dns <TUNNEL> <PROD_HOST>
+#
+#   4. Verify:  curl -I https://<PROD_HOST>/     # expect 200
+#
+# ── Ordering rule (matters for prod cutovers) ────────────────────────────────
+# Bring the tier UP and confirm it serves on its loopback port BEFORE pointing
+# DNS at it — especially for an apex, where a wrong order leaves the site dark:
+#   curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:<PROD_PORT>/
+# Then do the ingress edit + restart, and flip DNS last.
+#
+# ── Gotchas ──────────────────────────────────────────────────────────────────
+# * The dev rule points at the VITE port, not the backend — the backend is
+#   internal and reached via Vite's /api proxy.
+# * Dev only serves while ./run-dev.sh is running (it is not a service). The
+#   hostname will resolve but 502 when it's stopped. Same for test if its
+#   container is down.
+# * Vite rejects unknown Host headers: DEV_ALLOWED_HOST must equal <DEV_HOST>,
+#   or the tunnel gets a blocked-host error instead of the app.

@@ -1,0 +1,41 @@
+# TEST tier ("pre") — the gate before prod.
+#
+# A built snapshot from the same context/Containerfile as prod, but FULLY
+# ISOLATED: its own compose project name, container name, published host port,
+# and pb_data volume. Nothing here can touch prod's data.
+#
+# This is where a migration meets a COPY of prod data before prod does
+# (see docs/MIGRATIONS.md).
+#
+#   Deploy : ./deploy-pre.sh
+#   Logs   : docker compose -f compose.pre.yml logs -f
+#   Stop   : docker compose -f compose.pre.yml down   (add -v to DESTROY the test DB)
+#
+# The distinct project name is what keeps this stack from colliding with prod,
+# since both live in the same working directory.
+name: yourproject-pre
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Containerfile
+    container_name: yourproject-pre
+    # Same internal 8090; distinct host port from this project's PORTS.md block.
+    ports:
+      - "127.0.0.1:${PRE_PB_PORT:-8091}:8090"
+    # Separate volume — the test DB is independent of prod's.
+    volumes:
+      - pb_data_pre:/app/pb_data
+    env_file:
+      - .env.pre
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8090/api/health"]
+      interval: 30s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
+
+volumes:
+  pb_data_pre:
