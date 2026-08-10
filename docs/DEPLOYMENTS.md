@@ -8,9 +8,16 @@ ports and hostnames for you.
 
 | Tier | Purpose | Runs from | Command | Compose | Env | Bot |
 | --- | --- | --- | --- | --- | --- | --- |
-| **dev** | live-reload coding | working tree (Air + Vite HMR) | `./run-dev.sh` | — | `.env.dev` | **off** (forced) |
+| **dev** | live-reload coding | working tree (Air + Vite HMR) | `./run-dev.sh` | — | `.env.dev` | **none** (compiled out) |
 | **test** (`pre`) | the gate before prod | built image, isolated | `./deploy-pre.sh` | `compose.pre.yml` | `.env.pre` | optional (own token) |
 | **prod** | the live site | built image | `./deploy-prod.sh` | `compose.yml` | `.env` | optional (own token) |
+
+> **The dev tier runs no Discord bot — by design, not by toggle.** The dev build
+> (`-tags dev`) compiles the bot subsystem out entirely
+> (`internal/disgo.SubsystemEnabled == false`), so a dev-tier server never opens a
+> gateway and needs no `DISCORD_BOT_TOKEN`. Dev is the frontend/HMR tier;
+> **`test` (pre) is the lowest tier that runs a bot.** This is part of the tier
+> standard — every project scaffolded from this template inherits it.
 
 ## This project — FILL IN
 

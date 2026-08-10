@@ -11,9 +11,11 @@
 # Vite config adds it to allowedHosts and points the HMR websocket at
 # wss://<host>:443, so HMR works through the cloudflared tunnel.
 #
-# The Discord bot is FORCED OFF here: dev restarts on every save, and each
-# restart re-opens the gateway and re-registers commands, which Discord
-# rate-limits (and would fight whichever tier owns the token).
+# There is NO Discord bot here — by design, not a toggle. The dev build
+# (`-tags dev`) compiles the bot subsystem out entirely
+# (internal/disgo.SubsystemEnabled == false), so a dev-tier server never opens a
+# gateway and needs no token. Dev is the frontend/HMR tier; `pre` (test) is the
+# lowest tier that runs a bot. See docs/DEPLOYMENTS.md.
 #
 # Config: ./.env.dev (optional, see .env.dev.example) or env vars.
 #   DEV_PB_PORT       backend/PocketBase  (default 8092, internal)
@@ -39,8 +41,8 @@ export DEV_ALLOWED_HOST="${DEV_ALLOWED_HOST:-}"
 # cmd/server self-binds to PUBLIC_PB_PORT; point it at the dev backend port.
 export PUBLIC_PB_PORT="$DEV_PB_PORT"
 
-# BOT OFF on dev — override anything inherited from the environment/.env.dev.
-export DISCORD_BOT_TOKEN=""
+# No DISCORD_BOT_TOKEN is set here on purpose — the dev build has no bot
+# subsystem, so there is nothing to configure and nothing opens a gateway.
 
 command -v air >/dev/null 2>&1 || {
   echo "run-dev.sh: 'air' not found — go install github.com/air-verse/air@latest" >&2
@@ -51,7 +53,7 @@ echo "── dev ─────────────────────
 echo "  backend (Air, PocketBase) : http://127.0.0.1:${DEV_PB_PORT}   (ephemeral DB)"
 echo "  frontend (Vite HMR)       : http://127.0.0.1:${DEV_VITE_PORT}"
 [ -n "$DEV_ALLOWED_HOST" ] && echo "  public dev host           : https://${DEV_ALLOWED_HOST}"
-echo "  Discord bot               : OFF (forced)"
+echo "  Discord bot               : none (compiled out of the dev build)"
 echo "  Automigrate               : ON (dev build tag)"
 echo "──────────────────────────────────────────────────────────"
 

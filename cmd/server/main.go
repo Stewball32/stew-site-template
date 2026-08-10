@@ -68,18 +68,22 @@ func main() {
 		ws.SetInstance(hub)
 		se.Router.GET("/api/ws", ws.NewHandler(hub, app))
 
-		// Start Disgo bot (non-blocking)
-		var err error
-		bot, err = discordbot.NewBot()
-		if err != nil {
-			log.Printf("Warning: Discord bot not started: %v", err)
-		} else {
-			if err := bot.OpenGateway(context.Background()); err != nil {
+		// Start Disgo bot (non-blocking). The DEV tier compiles the bot subsystem
+		// out entirely (discordbot.SubsystemEnabled == false) — it is the
+		// frontend/HMR tier and never opens a gateway. pre (test) is the lowest
+		// tier that runs a bot. See docs/DEPLOYMENTS.md.
+		if discordbot.SubsystemEnabled {
+			b, err := discordbot.NewBot()
+			if err != nil {
+				log.Printf("Warning: Discord bot not started: %v", err)
+			} else if err := b.OpenGateway(context.Background()); err != nil {
 				log.Printf("Warning: Discord gateway failed: %v", err)
-				bot = nil
 			} else {
+				bot = b
 				discordbot.SetInstance(bot)
 			}
+		} else {
+			log.Println("Discord bot: not started (dev tier runs no bot)")
 		}
 
 		// Wire up cross-system Services for guards, resolvers, and actions.
