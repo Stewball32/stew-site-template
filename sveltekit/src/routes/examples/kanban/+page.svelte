@@ -169,7 +169,7 @@
 					<h2 class="h5">{column.title}</h2>
 					<span class="badge preset-tonal-surface text-xs">{column.cards.length}</span>
 				</div>
-				<button class="btn-icon btn-icon-sm preset-tonal" aria-label="More">
+				<button class="btn-icon preset-tonal btn-icon-sm" aria-label="More">
 					<MoreHorizontalIcon class="size-4" />
 				</button>
 			</div>

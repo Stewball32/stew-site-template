@@ -62,7 +62,9 @@
 					<label class="label">
 						<span>New Password</span>
 						<div class="field-group grid-cols-[auto_1fr_auto]">
-							<div class="flex items-center justify-center px-3 preset-tonal"><LockIcon class="size-4" /></div>
+							<div class="flex items-center justify-center preset-tonal px-3">
+								<LockIcon class="size-4" />
+							</div>
 							<input
 								type="password"
 								class="input"
@@ -77,7 +79,9 @@
 					<label class="label">
 						<span>Confirm Password</span>
 						<div class="field-group grid-cols-[auto_1fr_auto]">
-							<div class="flex items-center justify-center px-3 preset-tonal"><LockIcon class="size-4" /></div>
+							<div class="flex items-center justify-center preset-tonal px-3">
+								<LockIcon class="size-4" />
+							</div>
 							<input
 								type="password"
 								class="input"

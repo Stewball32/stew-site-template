@@ -88,7 +88,7 @@
 						<div class="relative">
 							<img src={photo.src} alt={photo.title} class="w-full object-contain" />
 							<Dialog.CloseTrigger
-								class="absolute top-3 right-3 btn-icon btn-icon-sm preset-filled"
+								class="absolute top-3 right-3 btn-icon preset-filled btn-icon-sm"
 								aria-label="Close"
 							>
 								<XIcon class="size-4" />

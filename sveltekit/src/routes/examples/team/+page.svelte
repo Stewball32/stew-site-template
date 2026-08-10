@@ -184,7 +184,7 @@
 					<MessageSquareIcon class="size-4" />
 					<span>Message</span>
 				</button>
-				<button class="btn-icon btn-icon-sm preset-tonal" aria-label="Email {member.email}">
+				<button class="btn-icon preset-tonal btn-icon-sm" aria-label="Email {member.email}">
 					<MailIcon class="size-4" />
 				</button>
 			</div>

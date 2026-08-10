@@ -86,7 +86,7 @@
 		<div class="flex flex-wrap gap-2 pt-2">
 			<button class="btn preset-filled-primary-500 btn-sm">Upgrade Plan</button>
 			<button class="btn preset-tonal btn-sm">Change Plan</button>
-			<button class="btn preset-tonal btn-sm text-error-500">Cancel</button>
+			<button class="btn preset-tonal text-error-500 btn-sm">Cancel</button>
 		</div>
 	</div>
 
@@ -177,7 +177,7 @@
 							</span>
 						</td>
 						<td class="text-right">
-							<button class="btn-icon btn-icon-sm preset-tonal" aria-label="Download {inv.id}">
+							<button class="btn-icon preset-tonal btn-icon-sm" aria-label="Download {inv.id}">
 								<DownloadIcon class="size-4" />
 							</button>
 						</td>

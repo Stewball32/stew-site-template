@@ -259,7 +259,9 @@
 					<label class="label">
 						<span>Display Name</span>
 						<div class="field-group grid-cols-[auto_1fr_auto]">
-							<div class="flex items-center justify-center px-3 preset-tonal"><UserIcon class="size-4" /></div>
+							<div class="flex items-center justify-center preset-tonal px-3">
+								<UserIcon class="size-4" />
+							</div>
 							<input type="text" class="input" bind:value={displayName} />
 						</div>
 					</label>
@@ -267,7 +269,9 @@
 					<label class="label">
 						<span>Email</span>
 						<div class="field-group grid-cols-[auto_1fr_auto]">
-							<div class="flex items-center justify-center px-3 preset-tonal"><MailIcon class="size-4" /></div>
+							<div class="flex items-center justify-center preset-tonal px-3">
+								<MailIcon class="size-4" />
+							</div>
 							<input type="email" class="input" bind:value={email} />
 						</div>
 					</label>
@@ -286,7 +290,9 @@
 					<label class="label">
 						<span>Location</span>
 						<div class="field-group grid-cols-[auto_1fr_auto]">
-							<div class="flex items-center justify-center px-3 preset-tonal"><MapPinIcon class="size-4" /></div>
+							<div class="flex items-center justify-center preset-tonal px-3">
+								<MapPinIcon class="size-4" />
+							</div>
 							<input
 								type="text"
 								class="input"
@@ -328,7 +334,9 @@
 					<label class="label">
 						<span>Current Password</span>
 						<div class="field-group grid-cols-[auto_1fr_auto]">
-							<div class="flex items-center justify-center px-3 preset-tonal"><LockIcon class="size-4" /></div>
+							<div class="flex items-center justify-center preset-tonal px-3">
+								<LockIcon class="size-4" />
+							</div>
 							<input
 								type="password"
 								class="input"
@@ -342,7 +350,9 @@
 					<label class="label">
 						<span>New Password</span>
 						<div class="field-group grid-cols-[auto_1fr_auto]">
-							<div class="flex items-center justify-center px-3 preset-tonal"><LockIcon class="size-4" /></div>
+							<div class="flex items-center justify-center preset-tonal px-3">
+								<LockIcon class="size-4" />
+							</div>
 							<input
 								type="password"
 								class="input"
@@ -357,7 +367,9 @@
 					<label class="label">
 						<span>Confirm New Password</span>
 						<div class="field-group grid-cols-[auto_1fr_auto]">
-							<div class="flex items-center justify-center px-3 preset-tonal"><LockIcon class="size-4" /></div>
+							<div class="flex items-center justify-center preset-tonal px-3">
+								<LockIcon class="size-4" />
+							</div>
 							<input
 								type="password"
 								class="input"
