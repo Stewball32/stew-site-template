@@ -5,7 +5,7 @@ SvelteKit SPA served by PocketBase from `pb_public/`.
 ## Stack
 
 - **Svelte 5** + **SvelteKit 2** with TypeScript
-- **Skeleton UI v4** (cerberus theme) + **Tailwind CSS v4**
+- **Skeleton UI v5** (stew theme by default; cerberus + an editable `custom` theme are also registered — see [docs/stew-kit.md](docs/stew-kit.md)) + **Tailwind CSS v4**
 - **PocketBase JS SDK** for REST/auth
 - **Package manager:** pnpm
 
