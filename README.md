@@ -11,7 +11,7 @@ A reusable project template combining a Go backend with a SvelteKit frontend.
 | Backend / Auth / DB | [PocketBase](https://pocketbase.io/) v0.36.7 (Go framework, ServeMux router)         |
 | Discord Bot         | [Disgo](https://github.com/disgoorg/disgo) v0.19.3                                   |
 | WebSocket Server    | [coder/websocket](https://github.com/coder/websocket)                                |
-| Frontend            | [SvelteKit](https://kit.svelte.dev/) 2 + [Skeleton UI v4](https://www.skeleton.dev/) |
+| Frontend            | [SvelteKit](https://kit.svelte.dev/) 2 + [Skeleton UI v5](https://www.skeleton.dev/) |
 | Frontend Build      | `@sveltejs/adapter-static` → served by PocketBase                                    |
 | Build Orchestration | [Taskfile](https://taskfile.dev/)                                                    |
 | Container           | [Podman](https://podman.io/)                                                         |
@@ -87,7 +87,7 @@ A reusable project template combining a Go backend with a SvelteKit frontend.
 │       ├── handlers/          # Self-registering message type handlers
 │       ├── rooms/             # Room type definitions with guard lists
 │       └── resolvers/         # WS state lookups via Services
-├── sveltekit/                 # SvelteKit frontend (Skeleton UI v4, adapter-static → pb_public/)
+├── sveltekit/                 # SvelteKit frontend (Skeleton UI v5, adapter-static → pb_public/)
 ├── docs/                      # Project meta-docs (status, milestones, decisions, runbook) — see docs/README.md
 ├── reference/                 # (gitignored) local-only legacy/reference material — see docs/README.md
 ├── CHANGELOG.md               # Keep-a-Changelog, SemVer

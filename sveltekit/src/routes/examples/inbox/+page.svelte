@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { Tabs, Avatar } from '@skeletonlabs/skeleton-svelte';
+	import ConfettiBurst from '$lib/components/fx/ConfettiBurst.svelte';
+	import EmptyState from '$lib/components/fx/EmptyState.svelte';
 	import {
 		MessageSquareIcon,
 		GitPullRequestIcon,
@@ -101,7 +103,10 @@
 	let filtered = $derived(tab === 'unread' ? notifications.filter((n) => !n.read) : notifications);
 	let unreadCount = $derived(notifications.filter((n) => !n.read).length);
 
-	function markAllRead() {
+	let confetti: ConfettiBurst;
+
+	function markAllRead(e: MouseEvent) {
+		if (unreadCount > 0) confetti.fire(e.clientX, e.clientY, 60);
 		notifications = notifications.map((n) => ({ ...n, read: true }));
 	}
 
@@ -113,6 +118,8 @@
 		notifications = notifications.filter((n) => n.id !== id);
 	}
 </script>
+
+<ConfettiBurst bind:this={confetti} />
 
 <div class="mx-auto max-w-3xl">
 	<div class="mb-6 flex items-center justify-between">
@@ -187,9 +194,12 @@
 					</div>
 				{/each}
 				{#if filtered.length === 0}
-					<div class="py-12 text-center opacity-60">
-						<p class="text-sm">You’re all caught up.</p>
-					</div>
+					<EmptyState
+						title="You’re all caught up"
+						description="New mentions, review requests, and alerts will land here."
+					>
+						{#snippet icon()}<BellIcon class="size-5" />{/snippet}
+					</EmptyState>
 				{/if}
 			</div>
 		</Tabs.Content>

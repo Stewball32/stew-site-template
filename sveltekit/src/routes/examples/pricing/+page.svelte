@@ -1,5 +1,8 @@
 <script lang="ts">
 	import { Switch } from '@skeletonlabs/skeleton-svelte';
+	import AnimateIn from '$lib/components/fx/AnimateIn.svelte';
+	import CountUp from '$lib/components/fx/CountUp.svelte';
+	import TiltCard from '$lib/components/fx/TiltCard.svelte';
 	import { CheckIcon, XIcon, SparklesIcon } from '@lucide/svelte';
 
 	interface Plan {
@@ -89,9 +92,10 @@
 		</div>
 	</div>
 
-	<div class="grid gap-6 md:grid-cols-3">
+	<AnimateIn stagger={90} class="grid gap-6 md:grid-cols-3">
 		{#each plans as plan (plan.name)}
-			<div
+			<TiltCard
+				max={6}
 				class="relative flex flex-col gap-6 card p-8 {plan.highlight
 					? 'preset-outlined-primary-500 ring-2 ring-primary-500'
 					: ''}"
@@ -111,11 +115,15 @@
 				</div>
 
 				<div>
-					<span class="text-5xl font-bold">${yearly ? plan.yearly : plan.monthly}</span>
+					<span class="text-5xl font-bold">
+						{#key yearly}
+							<CountUp value={yearly ? plan.yearly : plan.monthly} prefix="$" duration={700} />
+						{/key}
+					</span>
 					<span class="text-sm opacity-60">/ {yearly ? 'year' : 'month'}</span>
 				</div>
 
-				<button class="btn {plan.ctaPreset}">{plan.ctaLabel}</button>
+				<button class="btn {plan.ctaPreset} press">{plan.ctaLabel}</button>
 
 				<hr class="hr" />
 
@@ -132,7 +140,7 @@
 						</li>
 					{/each}
 				</ul>
-			</div>
+			</TiltCard>
 		{/each}
-	</div>
+	</AnimateIn>
 </div>

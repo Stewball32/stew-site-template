@@ -64,7 +64,7 @@
 				<h2 id="introduction" class="h3">Introduction</h2>
 				<p class="opacity-80">
 					This template pairs a Go + PocketBase backend with a SvelteKit frontend powered by
-					Skeleton UI v4 and Tailwind CSS v4. It bakes in authentication, a Discord bot, and a
+					Skeleton UI v5 and Tailwind CSS v4. It bakes in authentication, a Discord bot, and a
 					WebSocket hub — all compiled into a single deployable binary.
 				</p>
 				<p class="opacity-80">

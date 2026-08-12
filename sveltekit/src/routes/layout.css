@@ -2,6 +2,9 @@
 @import '@skeletonlabs/skeleton';
 @import '@skeletonlabs/skeleton-svelte';
 @import '@skeletonlabs/skeleton/themes/cerberus';
+@import '../lib/themes/custom.css';
+@import '../lib/themes/stew.css';
+@import '../lib/styles/motion.css';
 
 @plugin '@tailwindcss/forms';
 

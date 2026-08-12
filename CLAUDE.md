@@ -8,7 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Before writing or reviewing code that touches a third-party library where the API may have drifted from your training data, consult up-to-date docs rather than guessing.
 
-- **Skeleton UI v4** — [sveltekit/docs/skeleton-llms.txt](sveltekit/docs/skeleton-llms.txt) is a table of contents of Skeleton's official docs (components, theming, Tailwind v4 integration). Read it first to locate the right page, then WebFetch the specific page under `https://www.skeleton.dev/` (e.g. `https://www.skeleton.dev/docs/svelte/framework-components/app-bar.md`, `https://www.skeleton.dev/docs/svelte/tailwind-components/buttons`). Always use the **Svelte** section, not React.
+- **Skeleton UI v5** — [sveltekit/docs/skeleton-llms.txt](sveltekit/docs/skeleton-llms.txt) is a table of contents of Skeleton's official docs (components, theming, Tailwind v4 integration). Read it first to locate the right page, then WebFetch the specific page under `https://www.skeleton.dev/` (e.g. `https://www.skeleton.dev/docs/svelte/framework-components/app-bar.md`, `https://www.skeleton.dev/docs/svelte/tailwind-components/buttons`). Always use the **Svelte** section, not React.
 - **SvelteKit, PocketBase JS SDK, Disgo, Tailwind v4** — WebFetch the official docs site (`kit.svelte.dev`, `pocketbase.io/docs`, `disgo.dev`, `tailwindcss.com`) rather than inventing an API.
 
 ## Project meta-docs
@@ -153,7 +153,9 @@ Each system has its own README with deeper per-subdirectory detail — read [`in
 
 ## Frontend Structure
 
-- **UI framework:** Skeleton UI v4 (Svelte 5 + Tailwind CSS v4), cerberus theme
+- **UI framework:** Skeleton UI v5 (Svelte 5 + Tailwind CSS v4), `stew` theme by default (`data-theme` on `<html>` in `app.html`); `cerberus` and an editable `custom` clone are also registered via `src/lib/themes/` — see [sveltekit/docs/stew-kit.md](sveltekit/docs/stew-kit.md)
+- **Motion & fx kit:** `src/lib/styles/motion.css` (utilities: `hover-lift`, `press`, `icon-slide`, `glow`, `shimmer`, `bg-aurora`, `bg-dotgrid`) + `src/lib/components/fx/` (ParticleField, AnimateIn, CountUp, TypeCycle, TiltCard, Sparkline, SkeletonBlock, EmptyState, ConfettiBurst, PageTransition, ScrollProgress, MouseGlow, BuildStamp) — all theme-token driven and `prefers-reduced-motion` safe; usage reference in [sveltekit/docs/stew-kit.md](sveltekit/docs/stew-kit.md)
+- **Build stamp / stale-tab detection:** `svelte.config.js` sets `kit.version` to the short git commit with a 60s `pollInterval`; `BuildStamp` (anchored on the logo in `NavToggle.svelte`) shows the running commit and flags newer deploys via SvelteKit's `updated` store
 - **API client:** PocketBase JS SDK (`pocketbase` npm package) — singleton in `src/lib/pocketbase.ts`; in dev points to `http://localhost:PORT`, in production passes `undefined` (same-origin relative)
 - **Auth store:** `src/lib/stores/auth.svelte.ts` — uses Svelte 5 runes (`$state`/`$derived`), not writable stores
 - **Mode store:** `src/lib/stores/mode.svelte.ts` — dark/light mode toggle, persisted in `localStorage`; call `mode.toggle()` or `mode.set('dark'|'light')`
@@ -172,7 +174,7 @@ The root layout (`+layout.svelte`) implements a 3-mode navigation system driven 
 
 | Breakpoint       | Nav mode                                                             |
 | ---------------- | -------------------------------------------------------------------- |
-| Mobile (`< sm`)  | Bottom bar (`MobileNav`) + slide-in overlay drawer (`NavPanel`)      |
+| Mobile (`< sm`)  | Bottom bar (`NavBar`) + slide-in overlay drawer (`NavPanel`)         |
 | Desktop (`< lg`) | Rail sidebar — icons only (`NavPanel layout="rail"`)                 |
 | Desktop (`≥ lg`) | Toggle between rail and full sidebar via `NavToggle` in the `Header` |
 

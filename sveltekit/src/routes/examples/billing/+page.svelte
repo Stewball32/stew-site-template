@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { Progress } from '@skeletonlabs/skeleton-svelte';
+	import CountUp from '$lib/components/fx/CountUp.svelte';
 	import {
 		DownloadIcon,
 		CreditCardIcon,
@@ -119,31 +120,31 @@
 
 <!-- Stat cards -->
 <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
-	<div class="flex items-center gap-4 card p-6">
+	<div class="flex hover-lift items-center gap-4 card p-6">
 		<div class="flex items-center justify-center rounded-full bg-primary-500/10 p-3">
 			<ReceiptIcon class="size-5 text-primary-500" />
 		</div>
 		<div>
 			<p class="text-sm opacity-70">Lifetime spent</p>
-			<p class="text-2xl font-bold">$456</p>
+			<p class="text-2xl font-bold"><CountUp value={456} prefix="$" /></p>
 		</div>
 	</div>
-	<div class="flex items-center gap-4 card p-6">
+	<div class="flex hover-lift items-center gap-4 card p-6">
 		<div class="flex items-center justify-center rounded-full bg-success-500/10 p-3">
 			<CheckCircle2Icon class="size-5 text-success-500" />
 		</div>
 		<div>
 			<p class="text-sm opacity-70">Invoices paid</p>
-			<p class="text-2xl font-bold">24</p>
+			<p class="text-2xl font-bold"><CountUp value={24} /></p>
 		</div>
 	</div>
-	<div class="flex items-center gap-4 card p-6">
+	<div class="flex hover-lift items-center gap-4 card p-6">
 		<div class="flex items-center justify-center rounded-full bg-secondary-500/10 p-3">
 			<TrendingUpIcon class="size-5 text-secondary-500" />
 		</div>
 		<div>
 			<p class="text-sm opacity-70">Plan tenure</p>
-			<p class="text-2xl font-bold">14 mo</p>
+			<p class="text-2xl font-bold"><CountUp value={14} suffix=" mo" /></p>
 		</div>
 	</div>
 </div>
