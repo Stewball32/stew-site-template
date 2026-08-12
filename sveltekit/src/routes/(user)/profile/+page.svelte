@@ -13,8 +13,11 @@
 	import { auth } from '$lib/stores/auth.svelte';
 	import { getFileURL } from '$lib/utils/files';
 	import { OAUTH_PROVIDERS } from '$lib/config/app';
+	import EmptyState from '$lib/components/fx/EmptyState.svelte';
+	import SkeletonBlock from '$lib/components/fx/SkeletonBlock.svelte';
 
 	let linkedAuths = $state<Array<Record<string, string>>>([]);
+	let linkedAuthsLoaded = $state(false);
 
 	onMount(async () => {
 		if (auth.user) {
@@ -22,6 +25,8 @@
 				linkedAuths = await auth.listExternalAuths(auth.user.id);
 			} catch {
 				linkedAuths = [];
+			} finally {
+				linkedAuthsLoaded = true;
 			}
 		}
 	});
@@ -126,20 +131,31 @@
 			<a href={resolve('/settings/')} class="btn preset-tonal btn-sm">Manage</a>
 		</div>
 
-		{#if linkedAuths.length === 0}
-			<p class="text-sm opacity-50">No connected accounts.</p>
-		{:else}
-			<div class="flex flex-wrap gap-3">
-				{#each linkedAuths as { provider } (provider)}
-					{@const meta = OAUTH_PROVIDERS[provider]}
-					{#if meta}
-						<div class="flex items-center gap-2 rounded-md border border-surface-300-700 px-3 py-2">
-							<img src={meta.icon} alt={meta.label} class="size-5" />
-							<span class="text-sm font-medium">{meta.label}</span>
-						</div>
-					{/if}
-				{/each}
-			</div>
-		{/if}
+		<SkeletonBlock loaded={linkedAuthsLoaded} lines={1} avatar>
+			{#if linkedAuths.length === 0}
+				<EmptyState
+					title="No connected accounts"
+					description="Link an OAuth provider in Settings to sign in faster."
+				>
+					{#snippet action()}
+						<a href={resolve('/settings/')} class="btn press preset-tonal btn-sm">Open Settings</a>
+					{/snippet}
+				</EmptyState>
+			{:else}
+				<div class="flex flex-wrap gap-3">
+					{#each linkedAuths as { provider } (provider)}
+						{@const meta = OAUTH_PROVIDERS[provider]}
+						{#if meta}
+							<div
+								class="flex items-center gap-2 rounded-md border border-surface-300-700 px-3 py-2"
+							>
+								<img src={meta.icon} alt={meta.label} class="size-5" />
+								<span class="text-sm font-medium">{meta.label}</span>
+							</div>
+						{/if}
+					{/each}
+				</div>
+			{/if}
+		</SkeletonBlock>
 	</div>
 </div>

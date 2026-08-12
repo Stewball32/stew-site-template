@@ -20,6 +20,7 @@
 	import { getFileURL } from '$lib/utils/files';
 	import { toaster } from '$lib/stores/toaster';
 	import { OAUTH_PROVIDERS } from '$lib/config/app';
+	import SkeletonBlock from '$lib/components/fx/SkeletonBlock.svelte';
 
 	let activeTab = $state('general');
 
@@ -45,6 +46,7 @@
 	// Connected Accounts tab state
 	let linkedAuths = $state<Array<Record<string, string>>>([]);
 	let enabledProviders = $state<string[]>([]);
+	let accountsLoaded = $state(false);
 	let linkingProvider = $state<string | null>(null);
 	let unlinkingProvider = $state<string | null>(null);
 	const linkedProviderNames = $derived(new Set(linkedAuths.map((a) => a.provider)));
@@ -59,6 +61,7 @@
 			enabledProviders = [];
 		}
 		await loadLinkedAuths();
+		accountsLoaded = true;
 	});
 
 	async function loadLinkedAuths() {
@@ -426,52 +429,54 @@
 					<h2 class="h4">Connected Accounts</h2>
 					<p class="text-sm opacity-70">Link or unlink your external sign-in providers.</p>
 
-					{#if visibleProviders.length === 0}
-						<p class="text-sm opacity-50">No OAuth providers are configured.</p>
-					{:else}
-						<div class="space-y-3">
-							{#each visibleProviders as provider (provider)}
-								{@const meta = OAUTH_PROVIDERS[provider]}
-								{@const isLinked = linkedProviderNames.has(provider)}
-								{@const isLinking = linkingProvider === provider}
-								{@const isUnlinking = unlinkingProvider === provider}
-								<div
-									class="flex items-center justify-between rounded-md border border-surface-300-700 p-3"
-								>
-									<div class="flex items-center gap-3">
-										<img src={meta.icon} alt={meta.label} class="size-6" />
-										<div>
-											<p class="font-semibold">{meta.label}</p>
-											{#if isLinked}
-												<p class="text-xs text-success-500">Connected</p>
-											{:else}
-												<p class="text-xs opacity-50">Not connected</p>
-											{/if}
+					<SkeletonBlock loaded={accountsLoaded} lines={2} avatar>
+						{#if visibleProviders.length === 0}
+							<p class="text-sm opacity-50">No OAuth providers are configured.</p>
+						{:else}
+							<div class="space-y-3">
+								{#each visibleProviders as provider (provider)}
+									{@const meta = OAUTH_PROVIDERS[provider]}
+									{@const isLinked = linkedProviderNames.has(provider)}
+									{@const isLinking = linkingProvider === provider}
+									{@const isUnlinking = unlinkingProvider === provider}
+									<div
+										class="flex items-center justify-between rounded-md border border-surface-300-700 p-3"
+									>
+										<div class="flex items-center gap-3">
+											<img src={meta.icon} alt={meta.label} class="size-6" />
+											<div>
+												<p class="font-semibold">{meta.label}</p>
+												{#if isLinked}
+													<p class="text-xs text-success-500">Connected</p>
+												{:else}
+													<p class="text-xs opacity-50">Not connected</p>
+												{/if}
+											</div>
 										</div>
+										{#if isLinked}
+											<button
+												class="btn preset-tonal-error btn-sm"
+												onclick={() => unlinkProvider(provider)}
+												disabled={isUnlinking}
+											>
+												<UnlinkIcon class="size-4" />
+												<span>{isUnlinking ? 'Unlinking...' : 'Disconnect'}</span>
+											</button>
+										{:else}
+											<button
+												class="btn preset-tonal btn-sm"
+												onclick={() => linkProvider(provider)}
+												disabled={isLinking}
+											>
+												<LinkIcon class="size-4" />
+												<span>{isLinking ? 'Linking...' : 'Connect'}</span>
+											</button>
+										{/if}
 									</div>
-									{#if isLinked}
-										<button
-											class="btn preset-tonal-error btn-sm"
-											onclick={() => unlinkProvider(provider)}
-											disabled={isUnlinking}
-										>
-											<UnlinkIcon class="size-4" />
-											<span>{isUnlinking ? 'Unlinking...' : 'Disconnect'}</span>
-										</button>
-									{:else}
-										<button
-											class="btn preset-tonal btn-sm"
-											onclick={() => linkProvider(provider)}
-											disabled={isLinking}
-										>
-											<LinkIcon class="size-4" />
-											<span>{isLinking ? 'Linking...' : 'Connect'}</span>
-										</button>
-									{/if}
-								</div>
-							{/each}
-						</div>
-					{/if}
+								{/each}
+							</div>
+						{/if}
+					</SkeletonBlock>
 				</div>
 			</div>
 		</Tabs.Content>

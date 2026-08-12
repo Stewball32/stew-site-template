@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { ChevronLeftIcon, ChevronRightIcon, PlusIcon } from '@lucide/svelte';
+	import EmptyState from '$lib/components/fx/EmptyState.svelte';
+	import { CalendarDaysIcon, ChevronLeftIcon, ChevronRightIcon, PlusIcon } from '@lucide/svelte';
 
 	interface CalendarEvent {
 		day: number;
@@ -147,7 +148,12 @@
 		</div>
 
 		{#if selectedEvents.length === 0}
-			<p class="text-sm opacity-60">No events scheduled.</p>
+			<EmptyState
+				title="No events scheduled"
+				description="Pick another day, or add an event to this one."
+			>
+				{#snippet icon()}<CalendarDaysIcon class="size-5" />{/snippet}
+			</EmptyState>
 		{:else}
 			<div class="space-y-3">
 				{#each selectedEvents as event (event.title + event.time)}

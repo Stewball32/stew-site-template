@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { Pagination, Avatar } from '@skeletonlabs/skeleton-svelte';
+	import EmptyState from '$lib/components/fx/EmptyState.svelte';
 	import {
 		SearchIcon,
 		ChevronUpIcon,
@@ -209,7 +210,20 @@
 				{/each}
 				{#if pageRows.length === 0}
 					<tr>
-						<td colspan="5" class="text-center text-sm opacity-60">No matches found.</td>
+						<td colspan="5">
+							<EmptyState
+								class="my-2"
+								title="No matches found"
+								description="No users match your search. Try a different name or email."
+							>
+								{#snippet icon()}<SearchIcon class="size-5" />{/snippet}
+								{#snippet action()}
+									<button class="btn press preset-tonal btn-sm" onclick={() => (query = '')}>
+										Clear search
+									</button>
+								{/snippet}
+							</EmptyState>
+						</td>
 					</tr>
 				{/if}
 			</tbody>

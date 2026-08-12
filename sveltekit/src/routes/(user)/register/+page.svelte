@@ -4,6 +4,7 @@
 	import { OAUTH_PROVIDERS } from '$lib/config/app';
 	import { buildLoginUrl } from '$lib/utils/redirect';
 	import pb from '$lib/pocketbase';
+	import SkeletonBlock from '$lib/components/fx/SkeletonBlock.svelte';
 	import { UserPlusIcon, MailIcon, LockIcon } from '@lucide/svelte';
 	import { onMount } from 'svelte';
 
@@ -15,6 +16,7 @@
 	let error = $state('');
 	let loading = $state(false);
 	let enabledProviders = $state<string[]>([]);
+	let providersLoaded = $state(false);
 
 	const visibleProviders = $derived(
 		enabledProviders
@@ -34,6 +36,8 @@
 			enabledProviders = methods.oauth2?.providers?.map((p) => p.name) ?? [];
 		} catch {
 			enabledProviders = [];
+		} finally {
+			providersLoaded = true;
 		}
 	});
 
@@ -148,50 +152,56 @@
 				</button>
 			</form>
 
-			{#if visibleProviders.length > 0}
-				<!-- Divider -->
-				<div class="flex items-center gap-4">
-					<hr class="hr flex-1" />
-					<span class="text-xs opacity-50">or continue with</span>
-					<hr class="hr flex-1" />
-				</div>
+			<SkeletonBlock loaded={providersLoaded} lines={2}>
+				{#if visibleProviders.length > 0}
+					<div class="space-y-6">
+						<!-- Divider -->
+						<div class="flex items-center gap-4">
+							<hr class="hr flex-1" />
+							<span class="text-xs opacity-50">or continue with</span>
+							<hr class="hr flex-1" />
+						</div>
 
-				<!-- Social Login -->
-				<div
-					class="grid gap-3"
-					class:grid-cols-1={layout === 'single'}
-					class:grid-cols-2={layout === 'double'}
-					class:grid-cols-4={layout === 'compact'}
-				>
-					{#each visibleProviders as { name, meta }, i (name)}
-						<button
-							type="button"
-							class="btn w-full preset-tonal"
-							class:col-span-2={layout === 'double' && isOdd && i === visibleProviders.length - 1}
-							disabled={loading}
-							title={meta.label}
-							onclick={() => handleOAuth(name)}
+						<!-- Social Login -->
+						<div
+							class="grid gap-3"
+							class:grid-cols-1={layout === 'single'}
+							class:grid-cols-2={layout === 'double'}
+							class:grid-cols-4={layout === 'compact'}
 						>
-							<img
-								src={meta.icon}
-								alt={meta.label}
-								class="shrink-0"
-								class:size-8={layout === 'single'}
-								class:size-6={layout !== 'single'}
-							/>
-							{#if layout !== 'compact'}
-								<span class="flex-1 text-center">{meta.label}</span>
-								<span
-									class="shrink-0"
-									class:size-8={layout === 'single'}
-									class:size-6={layout !== 'single'}
-									aria-hidden="true"
-								></span>
-							{/if}
-						</button>
-					{/each}
-				</div>
-			{/if}
+							{#each visibleProviders as { name, meta }, i (name)}
+								<button
+									type="button"
+									class="btn w-full press preset-tonal"
+									class:col-span-2={layout === 'double' &&
+										isOdd &&
+										i === visibleProviders.length - 1}
+									disabled={loading}
+									title={meta.label}
+									onclick={() => handleOAuth(name)}
+								>
+									<img
+										src={meta.icon}
+										alt={meta.label}
+										class="shrink-0"
+										class:size-8={layout === 'single'}
+										class:size-6={layout !== 'single'}
+									/>
+									{#if layout !== 'compact'}
+										<span class="flex-1 text-center">{meta.label}</span>
+										<span
+											class="shrink-0"
+											class:size-8={layout === 'single'}
+											class:size-6={layout !== 'single'}
+											aria-hidden="true"
+										></span>
+									{/if}
+								</button>
+							{/each}
+						</div>
+					</div>
+				{/if}
+			</SkeletonBlock>
 		</div>
 
 		<!-- Footer -->

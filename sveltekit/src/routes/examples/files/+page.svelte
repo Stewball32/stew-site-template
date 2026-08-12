@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { TreeView, createTreeViewCollection } from '@skeletonlabs/skeleton-svelte';
+	import EmptyState from '$lib/components/fx/EmptyState.svelte';
 	import {
 		FileIcon,
 		FolderIcon,
@@ -171,7 +172,15 @@
 					{/each}
 					{#if filesInFolder.length === 0}
 						<tr>
-							<td colspan="4" class="text-center text-sm opacity-60">No files in this folder.</td>
+							<td colspan="4">
+								<EmptyState
+									class="my-2"
+									title="No files in this folder"
+									description="Upload a file or pick another folder from the tree."
+								>
+									{#snippet icon()}<FolderIcon class="size-5" />{/snippet}
+								</EmptyState>
+							</td>
 						</tr>
 					{/if}
 				</tbody>

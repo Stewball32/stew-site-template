@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { Avatar } from '@skeletonlabs/skeleton-svelte';
+	import AnimateIn from '$lib/components/fx/AnimateIn.svelte';
+	import EmptyState from '$lib/components/fx/EmptyState.svelte';
 	import { SearchIcon, MailIcon, MessageSquareIcon, UserPlusIcon } from '@lucide/svelte';
 
 	interface Member {
@@ -155,9 +157,9 @@
 	</div>
 </div>
 
-<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+<AnimateIn stagger={50} class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
 	{#each filtered as member (member.id)}
-		<div class="space-y-4 card p-6">
+		<div class="hover-lift space-y-4 card p-6">
 			<div class="flex items-start gap-4">
 				<div class="relative">
 					<Avatar class="size-14">
@@ -191,8 +193,23 @@
 		</div>
 	{/each}
 	{#if filtered.length === 0}
-		<div class="col-span-full py-12 text-center opacity-60">
-			<p class="text-sm">No members match your filters.</p>
-		</div>
+		<EmptyState
+			class="col-span-full"
+			title="No members match your filters"
+			description="Try a different search, or clear the filters to see the whole team."
+		>
+			{#snippet icon()}<SearchIcon class="size-5" />{/snippet}
+			{#snippet action()}
+				<button
+					class="btn press preset-tonal btn-sm"
+					onclick={() => {
+						query = '';
+						activeDept = 'All';
+					}}
+				>
+					Clear filters
+				</button>
+			{/snippet}
+		</EmptyState>
 	{/if}
-</div>
+</AnimateIn>

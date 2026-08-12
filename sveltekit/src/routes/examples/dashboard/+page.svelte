@@ -1,5 +1,8 @@
 <script lang="ts">
 	import { SegmentedControl, Progress, Accordion, Avatar } from '@skeletonlabs/skeleton-svelte';
+	import AnimateIn from '$lib/components/fx/AnimateIn.svelte';
+	import CountUp from '$lib/components/fx/CountUp.svelte';
+	import Sparkline from '$lib/components/fx/Sparkline.svelte';
 	import {
 		UsersIcon,
 		ActivityIcon,
@@ -14,7 +17,11 @@
 
 	interface StatCard {
 		label: string;
-		value: string;
+		value: number;
+		decimals?: number;
+		prefix?: string;
+		suffix?: string;
+		series: number[];
 		trend: string;
 		trendUp: boolean;
 		progress: number;
@@ -28,7 +35,8 @@
 		today: [
 			{
 				label: 'Users',
-				value: '48',
+				value: 48,
+				series: [31, 35, 33, 38, 41, 40, 44, 48],
 				trend: '+3%',
 				trendUp: true,
 				progress: 48,
@@ -37,7 +45,8 @@
 			},
 			{
 				label: 'Activity',
-				value: '312',
+				value: 312,
+				series: [180, 220, 205, 260, 244, 281, 296, 312],
 				trend: '+8%',
 				trendUp: true,
 				progress: 65,
@@ -46,7 +55,8 @@
 			},
 			{
 				label: 'Projects',
-				value: '7',
+				value: 7,
+				series: [7, 7, 6, 7, 7, 7, 7, 7],
 				trend: '0%',
 				trendUp: true,
 				progress: 17,
@@ -55,7 +65,11 @@
 			},
 			{
 				label: 'Growth',
-				value: '+2.1%',
+				value: 2.1,
+				decimals: 1,
+				prefix: '+',
+				suffix: '%',
+				series: [0.4, 0.9, 0.7, 1.2, 1.5, 1.4, 1.8, 2.1],
 				trend: '+2.1%',
 				trendUp: true,
 				progress: 21,
@@ -66,7 +80,8 @@
 		week: [
 			{
 				label: 'Users',
-				value: '1,234',
+				value: 1234,
+				series: [820, 932, 901, 985, 1040, 1130, 1190, 1234],
 				trend: '+12%',
 				trendUp: true,
 				progress: 78,
@@ -75,7 +90,8 @@
 			},
 			{
 				label: 'Activity',
-				value: '5,678',
+				value: 5678,
+				series: [4100, 4420, 4300, 4890, 5010, 5320, 5490, 5678],
 				trend: '+5%',
 				trendUp: true,
 				progress: 85,
@@ -84,7 +100,8 @@
 			},
 			{
 				label: 'Projects',
-				value: '42',
+				value: 42,
+				series: [48, 47, 45, 46, 44, 43, 43, 42],
 				trend: '-2%',
 				trendUp: false,
 				progress: 60,
@@ -93,7 +110,11 @@
 			},
 			{
 				label: 'Growth',
-				value: '+8.3%',
+				value: 8.3,
+				decimals: 1,
+				prefix: '+',
+				suffix: '%',
+				series: [3.2, 4.1, 3.8, 5.0, 5.9, 6.8, 7.5, 8.3],
 				trend: '+8.3%',
 				trendUp: true,
 				progress: 83,
@@ -104,7 +125,8 @@
 		month: [
 			{
 				label: 'Users',
-				value: '4,891',
+				value: 4891,
+				series: [3100, 3390, 3610, 3820, 4120, 4400, 4650, 4891],
 				trend: '+18%',
 				trendUp: true,
 				progress: 92,
@@ -113,7 +135,8 @@
 			},
 			{
 				label: 'Activity',
-				value: '23,456',
+				value: 23456,
+				series: [15200, 16800, 16100, 18400, 19700, 21200, 22300, 23456],
 				trend: '+15%',
 				trendUp: true,
 				progress: 94,
@@ -122,7 +145,8 @@
 			},
 			{
 				label: 'Projects',
-				value: '56',
+				value: 56,
+				series: [44, 46, 45, 48, 50, 52, 54, 56],
 				trend: '+7%',
 				trendUp: true,
 				progress: 75,
@@ -131,7 +155,11 @@
 			},
 			{
 				label: 'Growth',
-				value: '+12.7%',
+				value: 12.7,
+				decimals: 1,
+				prefix: '+',
+				suffix: '%',
+				series: [6.1, 7.4, 7.0, 8.6, 9.8, 10.9, 11.9, 12.7],
 				trend: '+12.7%',
 				trendUp: true,
 				progress: 95,
@@ -257,30 +285,47 @@
 	</SegmentedControl>
 </div>
 
-<!-- Stat Cards -->
-<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-	{#each stats as stat (stat.label)}
-		<div class="space-y-3 card p-6">
-			<div class="flex items-center justify-between">
-				<div class="flex items-center gap-3">
-					<stat.icon class="size-8 text-{stat.color}-500" />
-					<h2 class="h4">{stat.label}</h2>
+<!-- Stat Cards (keyed by period so CountUp/Sparkline re-animate on switch) -->
+{#key period}
+	<AnimateIn stagger={60} class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+		{#each stats as stat (stat.label)}
+			<div class="hover-lift space-y-3 card p-6">
+				<div class="flex items-center justify-between">
+					<div class="flex items-center gap-3">
+						<stat.icon class="size-8 text-{stat.color}-500" />
+						<h2 class="h4">{stat.label}</h2>
+					</div>
+					<span
+						class="badge {stat.trendUp
+							? 'preset-filled-success-500'
+							: 'preset-filled-error-500'} text-xs">{stat.trend}</span
+					>
 				</div>
-				<span
-					class="badge {stat.trendUp
-						? 'preset-filled-success-500'
-						: 'preset-filled-error-500'} text-xs">{stat.trend}</span
-				>
+				<div class="flex items-end justify-between gap-3">
+					<p class="text-3xl font-bold">
+						<CountUp
+							value={stat.value}
+							decimals={stat.decimals ?? 0}
+							prefix={stat.prefix ?? ''}
+							suffix={stat.suffix ?? ''}
+						/>
+					</p>
+					<Sparkline
+						data={stat.series}
+						width={96}
+						height={28}
+						color={stat.trendUp ? `var(--color-${stat.color}-500)` : 'var(--color-error-500)'}
+					/>
+				</div>
+				<Progress value={stat.progress} max={100}>
+					<Progress.Track class="h-1.5 preset-outlined-surface-200-800">
+						<Progress.Range class="bg-{stat.color}-500" />
+					</Progress.Track>
+				</Progress>
 			</div>
-			<p class="text-3xl font-bold">{stat.value}</p>
-			<Progress value={stat.progress} max={100}>
-				<Progress.Track class="h-1.5 preset-outlined-surface-200-800">
-					<Progress.Range class="bg-{stat.color}-500" />
-				</Progress.Track>
-			</Progress>
-		</div>
-	{/each}
-</div>
+		{/each}
+	</AnimateIn>
+{/key}
 
 <!-- Middle Row: Activity Table + Quick Actions -->
 <div class="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
@@ -324,7 +369,7 @@
 		<h2 class="h4">Quick Actions</h2>
 		<div class="space-y-3">
 			{#each quickActions as action (action.title)}
-				<div class="card p-4">
+				<div class="hover-lift card p-4">
 					<div class="flex items-center gap-4">
 						<div class="flex items-center justify-center rounded-full bg-surface-200-800 p-2">
 							<action.icon class="size-5 text-primary-500" />
@@ -333,7 +378,7 @@
 							<p class="font-semibold">{action.title}</p>
 							<p class="text-sm opacity-70">{action.description}</p>
 						</div>
-						<button class="btn preset-tonal-primary btn-sm">{action.btnLabel}</button>
+						<button class="btn press preset-tonal-primary btn-sm">{action.btnLabel}</button>
 					</div>
 				</div>
 			{/each}
