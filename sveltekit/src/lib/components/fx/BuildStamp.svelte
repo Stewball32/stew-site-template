@@ -45,7 +45,9 @@
 </script>
 
 {#if children}
-	<span class="group relative inline-flex">
+	<!-- min-w-0 so a truncating child (e.g. an app name beside the logo) can still
+	     shrink: this span becomes the flex item in the host layout. -->
+	<span class="group relative inline-flex min-w-0">
 		{@render children()}
 		{#if updated.current}
 			<span
